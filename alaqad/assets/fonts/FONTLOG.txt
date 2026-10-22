@@ -1,0 +1,40 @@
+FONTLOG for the website's copy of Baloo Bhaijaan 2
+==================================================
+
+The website of the app "على قد ثقتك" uses a subset of Baloo Bhaijaan 2, the
+same font as the app. It is licensed under the SIL Open Font License 1.1
+(OFL.txt in this folder), like the original. The original has no Reserved
+Font Name, so the subset keeps the name "Baloo Bhaijaan 2".
+
+Original
+--------
+Baloo Bhaijaan 2 by Ek Type, "Copyright 2019 The Baloo 2 Project Authors
+(https://github.com/EkType/Baloo2)", font version 1.701: the static
+instances that Google Fonts serves (fonts.gstatic.com, v21), the same files
+the app bundles.
+
+Source files and SHA-256:
+- BalooBhaijaan2-Medium.ttf     3863f38888bfa0328a6883b6ece4c0d34bcbc01cf08d729ee82b8b95dd78a557
+- BalooBhaijaan2-Bold.ttf       4ac8501d9b5b4212e3fccc14047180ee896378ed0c8510130ad1f38fe7b6bf62
+- BalooBhaijaan2-ExtraBold.ttf  8b918eef62ef07dff479fc3b37965133fd7090d3e2cc4642cbd2e6851b5c7225
+- OFL.txt                       ad09b05dc8bc678c9daf7c4c5f7ef1f55e5726127f4330b2e98e40b9dffcb860
+  (Google Fonts' ofl/baloobhaijaan2/OFL.txt, kept byte for byte)
+
+Changes (2026-10-22)
+--------------------
+- Subset with fontTools 4.62.1 (tools/subset_fonts.py) to Basic Latin, a few
+  Latin-1 signs, the Arabic block U+0600-06FF, General Punctuation, Arrows and
+  U+2212, as far as the font covers them. OpenType layout features for those
+  characters are kept.
+- Hinting removed; converted to WOFF.
+- No glyph, metric or name changes. The copyright, licence, designer and
+  name records are kept.
+
+Files: baloo-bhaijaan-2-500.woff (from Medium), baloo-bhaijaan-2-700.woff
+(from Bold), baloo-bhaijaan-2-800.woff (from ExtraBold).
+
+History
+-------
+2026-10-16 to 2026-10-21: the site used "Alaqad Arabic", a renamed subset of
+IBM Plex Sans Arabic. It was replaced with Baloo Bhaijaan 2 when the app took
+the "Sticker pop" look.
