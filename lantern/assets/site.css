@@ -1,0 +1,161 @@
+/*
+ * Lantern Caravan / قافلة الفانوس: the small static site (le3batna.github.io/lantern/). The same
+ * structure as le3batna.github.io/alaqad (a cream document card, a summary note, a footer of pill
+ * links; Arabic first, English below), in the game's own night and lantern-gold palette. No
+ * cookies, no scripts, no outside fonts: Baloo Bhaijaan 2 (SIL OFL 1.1, assets/fonts/OFL.txt) is
+ * served from here.
+ */
+
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("fonts/baloo-bhaijaan-2-arabic-wght.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F;
+}
+@font-face {
+  font-family: "Baloo Bhaijaan 2";
+  src: url("fonts/baloo-bhaijaan-2-latin-wght.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+0000-024F, U+2000-206F, U+20AC, U+2122;
+}
+
+:root {
+  --night: #100d2a;
+  --night-2: #1d1744;
+  --dusk: #34224f;
+  --paper: #fff5de;
+  --ink: #1b0f2e;
+  --ink-2: #5b4e72;
+  --gold: #ffc94d;
+  --gold-hi: #fff0b0;
+  --gold-deep: #f2a93b;
+  --white: #ffffff;
+  --line: 2.5px;
+  --lift: -4px 4px 0 var(--ink);
+  --key-pressed: 0 1px 0 var(--ink);
+  --r-lg: 20px;
+  --r-md: 16px;
+  --font: "Baloo Bhaijaan 2", system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--night) linear-gradient(180deg, var(--night) 0%, var(--night-2) 45%, var(--dusk) 100%) fixed;
+  color: var(--paper);
+  font: 500 17px/1.6 var(--font);
+  letter-spacing: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--ink); text-decoration-color: var(--gold-deep); text-decoration-thickness: 2px; text-underline-offset: 4px; font-weight: 700; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 10px; }
+
+h1, h2, h3 { line-height: 1.3; margin: 0 0 0.45em; font-weight: 800; }
+p { margin: 0 0 0.8em; }
+b, strong { font-weight: 800; }
+
+.wrap { width: 100%; max-width: 600px; margin: 0 auto; padding: 0 16px; }
+
+.skip {
+  position: absolute;
+  inset-inline-start: 12px;
+  top: -80px;
+  z-index: 10;
+  padding: 6px 16px 9px;
+  background: var(--gold);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--r-md);
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+}
+.skip:focus { top: 12px; }
+
+/* ------------------------------------------------------------ header & footer */
+
+.top { padding: 16px 0 0; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; color: var(--gold); }
+.brand img { width: 52px; height: 52px; border-radius: 12px; border: 2px solid var(--gold-deep); }
+.brand span { display: flex; flex-direction: column; line-height: 1.15; }
+.brand b { font-size: 22px; color: var(--gold-hi); text-shadow: 0 2px 0 var(--ink); }
+.brand small { font-size: 15px; color: var(--gold); font-weight: 700; }
+
+main { padding-bottom: 30px; }
+
+.foot {
+  margin-top: 8px;
+  padding: 20px 0 calc(30px + env(safe-area-inset-bottom));
+  border-top: var(--line) dashed rgba(255, 201, 77, 0.45);
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 600;
+}
+.foot p { margin: 0.5em 0 0; }
+.foot a { color: var(--gold-hi); text-decoration-color: var(--gold); }
+.foot .small { font-size: 14px; opacity: 0.85; }
+.foot-nav { display: flex; flex-wrap: wrap; gap: 10px 8px; margin: 0 0 14px; }
+.foot-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 2px 14px 4px;
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 3px 0 var(--ink);
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+}
+.foot-nav a:active { transform: translateY(2px); box-shadow: var(--key-pressed); }
+
+/* ------------------------------------------------------------ documents */
+
+.doc {
+  margin: 18px 0 8px;
+  padding: 22px 18px 14px;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--line) solid var(--ink);
+  border-radius: var(--r-lg);
+  box-shadow: var(--lift);
+}
+.doc h1 { font-size: 30px; margin: 0 0 6px; }
+.doc h2 { font-size: 21px; margin: 1.5em 0 0.4em; }
+.doc ul, .doc ol { padding-inline-start: 1.3em; margin: 0 0 1em; }
+.doc li { margin: 0 0 0.45em; }
+.doc li::marker { font-weight: 800; color: var(--gold-deep); }
+.doc .meta { color: var(--ink-2); font-size: 15px; font-weight: 600; }
+.doc .note-tr { color: var(--ink-2); font-size: 15px; font-style: italic; }
+.doc table { width: 100%; border-collapse: collapse; margin: 0 0 1em; font-size: 15px; }
+.doc th, .doc td { border: 1.5px solid rgba(27, 15, 46, 0.25); padding: 6px 8px; text-align: start; vertical-align: top; }
+.doc th { background: rgba(255, 201, 77, 0.35); }
+
+.note {
+  position: relative;
+  margin: 26px 4px 10px;
+  padding: 14px 16px 6px;
+  background: #fff0a6;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-md);
+}
+.note h2 { margin: 0 0 6px; font-size: 20px; }
+.note ul { margin-bottom: 0.2em; }
+
+.lang-switch { margin: 0; font-size: 15px; }
+.lang-switch a { display: inline-flex; align-items: center; min-height: 44px; }
+.doc-en { margin-top: 30px; font-size: 16px; line-height: 1.65; }
+.doc-en h1 { font-size: 28px; }
+
+.hero { margin: 18px 0 8px; text-align: center; }
+.hero img { width: 140px; height: 140px; border-radius: 30px; border: 3px solid var(--gold-deep); box-shadow: 0 6px 0 var(--ink); }
+.hero h1 { margin: 14px 0 0; font-size: 34px; color: var(--gold-hi); text-shadow: 0 3px 0 var(--ink); }
+.hero p { color: var(--paper); }
