@@ -1,0 +1,68 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "2NJYQ5VT4M.com.asimalhwiriny.raff"
+        ],
+        "components": [
+          {
+            "/": "/raff/p/",
+            "comment": "A shared Raff profile link; the profile itself is in the # fragment."
+          },
+          {
+            "/": "/raff/p/*",
+            "comment": "The same viewer under another file name, such as index.html."
+          }
+        ]
+      },
+      {
+        "appIDs": [
+          "2NJYQ5VT4M.com.asimalhwiriny.abyat"
+        ],
+        "components": [
+          {
+            "/": "/abyat/p/",
+            "comment": "A shared Abyat profile link; the profile itself is in the # fragment."
+          },
+          {
+            "/": "/abyat/p/*",
+            "comment": "The same viewer under another file name, such as index.html."
+          }
+        ]
+      },
+      {
+        "appIDs": [
+          "2NJYQ5VT4M.com.asimalhwiriny.alaqad"
+        ],
+        "components": [
+          {
+            "/": "/dabbel/j/*",
+            "comment": "Join a Dabbel live room; the room code is in the # fragment."
+          }
+        ]
+      },
+      {
+        "appID": "2NJYQ5VT4M.com.asimalhwiriny.raff",
+        "paths": [
+          "/raff/p/",
+          "/raff/p/*"
+        ]
+      },
+      {
+        "appID": "2NJYQ5VT4M.com.asimalhwiriny.abyat",
+        "paths": [
+          "/abyat/p/",
+          "/abyat/p/*"
+        ]
+      },
+      {
+        "appID": "2NJYQ5VT4M.com.asimalhwiriny.alaqad",
+        "paths": [
+          "/dabbel/j/*"
+        ]
+      }
+    ]
+  }
+}

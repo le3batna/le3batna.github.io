@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-8lYW2wDsDmPbyUq3pGpfGWZvDc+kbiPT/21jGLNoQDw=' 'sha256-9b1SCbcgkpWhCC9eiTCqfo+r0pVgdy73HtaJMUSlliw='; style-src 'sha256-ZD8lHDQm4pxWKFu+VlDEpnnimKQGE9Eym+SLFeUWi6A='; font-src 'self'; img-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="format-detection" content="telephone=no">
+<meta name="color-scheme" content="light">
+<meta name="theme-color" content="#FFF5DE">
+<meta name="robots" content="noindex">
+<title>ادخلوا غرفة «دبّل»</title>
+<meta name="description" content="عزموكم تلعبون «دبّل»: افتحوا التطبيق وادخلوا بالكود، أو حمّلوه مجانًا من App Store.">
+<link rel="canonical" href="https://le3batna.github.io/dabbel/j/">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ar_SA">
+<meta property="og:site_name" content="دبّل">
+<meta property="og:title" content="عزموكم تلعبون «دبّل»!">
+<meta property="og:description" content="كل واحد يجاوب من جواله. افتحوا الرابط وادخلوا بالكود.">
+<meta property="og:url" content="https://le3batna.github.io/dabbel/j/">
+<meta property="og:image" content="https://le3batna.github.io/dabbel/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="دبّل: الاسم بحروف ستيكر حمراء مع ملصق ×٢ أصفر">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="../assets/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<script>
+// The Smart App Banner, with the room's link as its argument: iOS Safari shows
+// «فتح» (Open) when the app is installed, which a link on this same page cannot
+// do (Safari keeps same-site taps in the browser). Written while the head is
+// parsed, so Safari reads it like a static tag. Only a valid code is passed on.
+(function () {
+  var h = location.hash.slice(1);
+  try { h = decodeURIComponent(h); } catch (e) { h = ''; }
+  h = h.replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+       .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+       .replace(/\s+/g, '');
+  var arg = /^[1-9][0-9]{4}$/.test(h) ? ', app-argument=https://le3batna.github.io/dabbel/j/#' + h : '';
+  document.write('<meta name="apple-itunes-app" content="app-id=6823729392' + arg + '">');
+})();
+</script>
+<style>
+@font-face{font-family:"Baloo Bhaijaan 2";src:url("../assets/fonts/baloo-bhaijaan-2-500.woff") format("woff");font-weight:400 500;font-display:swap}
+@font-face{font-family:"Baloo Bhaijaan 2";src:url("../assets/fonts/baloo-bhaijaan-2-700.woff") format("woff");font-weight:600 700;font-display:swap}
+@font-face{font-family:"Baloo Bhaijaan 2";src:url("../assets/fonts/baloo-bhaijaan-2-800.woff") format("woff");font-weight:800 900;font-display:swap}
+:root{--paper:#FFF5DE;--dot:#EDDDB6;--ink:#221A3D;--ink2:#635878;--white:#fff;--yellow:#FFD23F;--red:#FF5B4F;--blue:#3D8BFF;--note:#FFF0A6;--font:"Baloo Bhaijaan 2",system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;min-height:100vh;background:var(--paper) radial-gradient(circle,var(--dot) 1.4px,transparent 1.6px) 9px 9px/18px 18px;color:var(--ink);font:500 17px/1.6 var(--font);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--ink);font-weight:700;text-decoration-color:var(--red);text-decoration-thickness:2px;text-underline-offset:4px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:10px}
+.wrap{max-width:460px;margin:0 auto;padding:18px 16px calc(28px + env(safe-area-inset-bottom))}
+.logo{display:block;width:210px;height:auto;margin:6px auto 4px}
+.card{position:relative;background:var(--white);border:3px solid var(--ink);border-radius:28px;box-shadow:-7px 7px 0 var(--ink);padding:22px 18px 20px;margin:18px 6px 0 0;text-align:center}
+h1{font-size:25px;font-weight:800;line-height:1.35;margin:0 0 14px}
+.label{font-weight:700;color:var(--ink2);margin:0 0 6px}
+.code{display:inline-block;direction:ltr;background:var(--yellow);border:3px solid var(--ink);border-radius:20px;box-shadow:0 0 0 4px var(--white),0 0 0 6.5px var(--ink),-4px 6px 0 6.5px var(--ink);padding:2px 22px 8px;font-size:56px;font-weight:800;line-height:1.25;letter-spacing:.06em;transform:rotate(-2deg);margin:4px 0 8px}
+.latin{margin:8px 0 0;color:var(--ink2);font-size:15px}
+.latin bdi{font-weight:800;letter-spacing:.08em}
+.keys{display:grid;gap:14px;margin:22px 0 0}
+.key{display:flex;align-items:center;justify-content:center;gap:8px;min-height:58px;padding:8px 18px 10px;border:3px solid var(--ink);border-radius:20px;background:var(--white);box-shadow:0 5px 0 var(--ink);color:var(--ink);font:800 20px/1.3 var(--font);text-decoration:none;cursor:pointer;transition:transform 70ms,box-shadow 70ms}
+.key:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.key.primary{background:var(--yellow);font-size:22px}
+.key.small{min-height:44px;font-size:16px;border-width:2.5px;box-shadow:0 4px 0 var(--ink);padding:4px 16px 6px;margin:12px auto 0;width:auto;display:inline-flex}
+.key svg{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.steps{position:relative;background:var(--note);border:2.5px solid var(--ink);border-radius:16px;box-shadow:-4px 4px 0 var(--ink);padding:14px 18px 12px;margin:30px 4px 0 0;transform:rotate(-1.2deg)}
+.steps.flash{animation:flash 900ms 2}
+@keyframes flash{50%{background:var(--yellow)}}
+.steps h2{font-size:19px;font-weight:800;margin:0 0 6px}
+.steps ol{margin:0;padding:0 24px 0 0;list-style-type:arabic-indic}
+.steps li::marker{font-weight:800}
+.steps li{margin:2px 0}
+.path{font-weight:800}
+.note{text-align:center;color:var(--ink2);margin:24px 0 0;font-size:15.5px}
+.bad{background:var(--note);border:2.5px solid var(--ink);border-radius:16px;padding:12px 14px;margin:0 0 6px;font-weight:700}
+footer{text-align:center;margin:30px 0 0;font-size:15px;color:var(--ink2)}
+footer nav{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+@media (max-width:350px){.code{font-size:46px;padding:2px 16px 7px}h1{font-size:22px}.key{font-size:18px}.key.primary{font-size:20px}}
+@media (prefers-reduced-motion:reduce){.key{transition:none}.steps.flash{animation:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<a href="../" aria-label="دبّل: الصفحة الرئيسية"><svg class="logo" viewBox="-150 -150 300 200" width="300" height="200" role="img" aria-label="دبّل"><defs><g id="w" font-family="'Baloo Bhaijaan 2',sans-serif" font-weight="800" font-size="100" text-anchor="middle" direction="rtl"><text x="0" y="0">دبّل</text></g></defs><g transform="rotate(-3)"><use href="#w" fill="#221A3D" stroke="#221A3D" stroke-width="28" stroke-linejoin="round" transform="translate(-5.5 6.5)"/><use href="#w" fill="#221A3D" stroke="#221A3D" stroke-width="28" stroke-linejoin="round"/><use href="#w" fill="#fff" stroke="#fff" stroke-width="22" stroke-linejoin="round"/><use href="#w" fill="#221A3D" stroke="#221A3D" stroke-width="6" stroke-linejoin="round"/><use href="#w" fill="#FF5B4F"/><g transform="translate(92 -98) rotate(-14)"><circle r="33" cx="-2.6" cy="3.9" fill="#221A3D"/><circle r="33" fill="#221A3D"/><circle r="31.4" fill="#fff"/><circle r="28" fill="#221A3D"/><circle r="26" fill="#FFD23F"/><text y="9" font-family="'Baloo Bhaijaan 2',sans-serif" font-weight="800" font-size="27" text-anchor="middle" fill="#221A3D" direction="rtl">×٢</text></g></g></svg></a>
+
+<section class="card" aria-labelledby="title">
+<h1 id="title">عزموكم تلعبون «دبّل»!</h1>
+<div id="has-code" hidden>
+<p class="label">كود الغرفة</p>
+<p><span class="code" id="code" aria-describedby="code-latin"></span></p>
+<p class="latin" id="code-latin">بالأرقام الإنجليزية: <bdi id="code-ascii"></bdi></p>
+<button class="key small" id="copy" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2.5"/><path d="M15.5 5.5v-.5a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h.5"/></svg><span id="copy-label">انسخوا الكود</span></button>
+</div>
+<p class="bad" id="no-code" hidden>كود الغرفة في الرابط ناقص أو غير صحيح. خذوا الكود من اللي عزمكم: ٥ أرقام تكتبونها في التطبيق.</p>
+<div class="keys">
+<a class="key primary" id="open" href="https://le3batna.github.io/dabbel/j/">افتحوا التطبيق</a>
+<a class="key" href="https://apps.apple.com/app/id6823729392">حمّلوا «دبّل» من App&nbsp;Store</a>
+</div>
+</section>
+
+<section class="steps" id="steps" aria-labelledby="steps-title">
+<h2 id="steps-title">ما انفتح التطبيق؟</h2>
+<ol>
+<li>ما عندكم التطبيق؟ حمّلوا «دبّل» من App&nbsp;Store، مجاني.</li>
+<li><span class="path">افتحوا دبّل ← العب&nbsp;مع&nbsp;ربعك ← ادخل&nbsp;بكود</span></li>
+<li>اكتبوا الكود<span id="steps-code"></span> واختاروا اسم مستعار.</li>
+</ol>
+</section>
+
+<p class="note">مجانية، بدون حساب وبدون إعلانات. كل واحد يجاوب من جواله، واللعب يحتاج نت.<br>على iPhone وiPad.</p>
+
+<footer>
+<nav aria-label="روابط"><a href="../">دبّل</a><a href="../support/">الدعم</a><a href="../privacy/">الخصوصية</a></nav>
+</footer>
+</main>
+<script>
+(function () {
+  'use strict';
+  var AR = '٠١٢٣٤٥٦٧٨٩';
+  // The room code from the link's fragment (#48213): exactly five digits,
+  // 10000-99999. Arabic-Indic (٠-٩) and Persian (۰-۹) digits are accepted.
+  function roomCode(hash) {
+    var h = String(hash || '').replace(/^#/, '');
+    try { h = decodeURIComponent(h); } catch (e) { return null; }
+    h = h.replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 0x0660); })
+         .replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 0x06F0); })
+         .replace(/\s+/g, '');
+    return /^[1-9][0-9]{4}$/.test(h) ? h : null;
+  }
+  function arabic(s) { return s.replace(/[0-9]/g, function (d) { return AR[+d]; }); }
+  function $(id) { return document.getElementById(id); }
+
+  function show() {
+    var code = roomCode(location.hash);
+    $('has-code').hidden = !code;
+    $('no-code').hidden = !!code;
+    $('code').textContent = code ? arabic(code) : '';
+    $('code-ascii').textContent = code || '';
+    $('steps-code').textContent = code ? ' ' + arabic(code) : '';
+    // The universal link: when the app is installed, iOS opens it from any
+    // other app (Messages, WhatsApp, the camera). From this page Safari stays
+    // put, so if the page is still showing a moment later, point at the steps.
+    $('open').href = 'https://le3batna.github.io/dabbel/j/' + (code ? '#' + code : '');
+    document.title = code ? 'ادخلوا غرفة «دبّل» ' + arabic(code) : 'ادخلوا غرفة «دبّل»';
+  }
+
+  $('open').addEventListener('click', function () {
+    setTimeout(function () {
+      if (document.visibilityState !== 'visible') return;
+      var steps = $('steps');
+      steps.classList.remove('flash');
+      void steps.offsetWidth;
+      steps.classList.add('flash');
+      steps.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 1500);
+  });
+
+  $('copy').addEventListener('click', function () {
+    var code = roomCode(location.hash);
+    if (!code) return;
+    var done = function () {
+      $('copy-label').textContent = 'تم النسخ!';
+      setTimeout(function () { $('copy-label').textContent = 'انسخوا الكود'; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(done, function () {});
+    }
+  });
+
+  window.addEventListener('hashchange', show);
+  show();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+FONTLOG for the /dabbel/ pages' copy of Baloo Bhaijaan 2
+=========================================================
+
+The /dabbel/ pages of le3batna.github.io (the app «دبّل», formerly
+«على قد ثقتك») use the same subset of Baloo Bhaijaan 2 as the earlier
+/alaqad/ site (D:\my games\alaqad-site\assets\fonts), copied byte for byte
+on 2026-10-30. It is the app's own font and is licensed under the SIL Open
+Font License 1.1 (OFL.txt in this folder, identical to the app's
+assets/fonts/OFL.txt). The original has no Reserved Font Name, so the subset
+keeps the name "Baloo Bhaijaan 2".
+
+Original
+--------
+Baloo Bhaijaan 2 by Ek Type, "Copyright 2019 The Baloo 2 Project Authors
+(https://github.com/EkType/Baloo2)", font version 1.701: the static
+instances that Google Fonts serves, the same files the app bundles.
+
+Changes (2026-10-22, by the /alaqad/ site)
+------------------------------------------
+- Subset with fontTools 4.62.1 to Basic Latin, a few Latin-1 signs, the
+  Arabic block U+0600-06FF, General Punctuation, Arrows and U+2212, as far
+  as the font covers them. OpenType layout features for those characters
+  are kept.
+- Hinting removed; converted to WOFF.
+- No glyph, metric or name changes. The copyright, licence, designer and
+  name records are kept.
+
+Files: baloo-bhaijaan-2-500.woff (from Medium), baloo-bhaijaan-2-700.woff
+(from Bold), baloo-bhaijaan-2-800.woff (from ExtraBold).

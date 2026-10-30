@@ -1,0 +1,109 @@
+/*
+ * رفّ (Raff): the small static site (le3batna.github.io/raff/): the landing, privacy and support
+ * pages, in the app's colours (a dark oud background, cream text, one gold accent). The profile
+ * viewer (raff/p/) is published separately with its own stylesheet and fonts. No cookies, no
+ * scripts, no outside fonts: the system font is used.
+ */
+
+:root {
+  --bg: #170d12;
+  --surface: #22141a;
+  --surface-hi: #2e1c24;
+  --ink: #f3e7d6;
+  --muted: #b7a08f;
+  --line: #452b36;
+  --gold: #d3a65a;
+  --on-gold: #1b0f14;
+  --ui: system-ui, -apple-system, "SF Arabic", "Segoe UI", Tahoma, sans-serif;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--bg); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg) radial-gradient(120% 60% at 50% 0%, #3a2129 0%, var(--bg) 70%) no-repeat;
+  color: var(--ink);
+  font: 400 17px/1.75 var(--ui);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection { background: var(--gold); color: var(--on-gold); }
+
+a { color: var(--gold); font-weight: 700; text-decoration-thickness: 1.5px; text-underline-offset: 4px; overflow-wrap: anywhere; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+h1, h2, h3 { line-height: 1.35; margin: 0 0 0.45em; font-weight: 700; }
+p { margin: 0 0 0.85em; }
+b, strong { font-weight: 700; }
+code { font-size: 0.92em; overflow-wrap: anywhere; }
+
+.wrap { width: 100%; max-width: 640px; margin: 0 auto; padding: 0 18px; }
+
+.skip { position: absolute; inset-inline-start: 12px; top: -80px; z-index: 10; padding: 6px 14px; background: var(--gold); color: var(--on-gold); border-radius: 10px; text-decoration: none; }
+.skip:focus { top: 12px; }
+
+/* ------------------------------------------------------------ header & footer */
+
+.top { padding: 18px 0 0; }
+.brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
+.brand img { width: 44px; height: 44px; border-radius: 11px; border: 1px solid var(--line); }
+.brand span { display: flex; flex-direction: column; line-height: 1.2; }
+.brand b { font-size: 22px; color: var(--gold); }
+.brand small { font-size: 14px; color: var(--muted); font-weight: 400; }
+
+main { padding-bottom: 28px; }
+
+.foot { border-top: 1px solid var(--line); padding: 20px 0 calc(28px + env(safe-area-inset-bottom)); color: var(--muted); font-size: 15px; }
+.foot p { margin: 0.4em 0 0; }
+.foot-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.foot-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; }
+.foot-nav a:hover { border-color: var(--gold); color: var(--gold); }
+.foot .small { font-size: 14px; }
+
+/* ------------------------------------------------------------ landing */
+
+.hero { text-align: center; padding: 44px 0 8px; }
+.hero img { width: 120px; height: 120px; border-radius: 28px; border: 1px solid var(--line); box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5); }
+.hero h1 { font-size: 52px; line-height: 1.2; margin: 18px 0 2px; color: var(--gold); }
+.hero .en-name { color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+.hero .line { font-size: 19px; max-width: 30em; margin: 0 auto 6px; }
+.hero .line-en { color: var(--muted); font-size: 16px; max-width: 32em; margin: 0 auto 24px; }
+
+.shelves { list-style: none; padding: 0; margin: 0 auto 26px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 520px; }
+.shelves li { padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: 15px; }
+
+.store { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px; border-radius: 14px; background: var(--gold); color: var(--on-gold); text-decoration: none; font-size: 17px; font-weight: 700; }
+.store:hover { background: #e2b96f; }
+
+.features { list-style: none; padding: 0; margin: 30px 0 0; display: grid; gap: 10px; text-align: start; }
+.features li { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 16px; }
+.features b { display: block; color: var(--ink); }
+.features span { color: var(--muted); font-size: 15px; }
+
+/* ------------------------------------------------------------ documents */
+
+.doc { overflow-wrap: break-word; margin: 18px 0 8px; padding: 24px 20px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+.doc h1 { font-size: 30px; margin: 0 0 4px; color: var(--gold); }
+.doc h2 { font-size: 20px; margin: 1.6em 0 0.4em; }
+.doc ul, .doc ol { padding-inline-start: 1.3em; margin: 0 0 1em; }
+.doc li { margin: 0 0 0.45em; }
+.doc li::marker { color: var(--gold); }
+.doc .meta { color: var(--muted); font-size: 15px; }
+.doc .note-tr { color: var(--muted); font-size: 15px; font-style: italic; }
+.lang-switch { margin: 0; font-size: 15px; }
+.lang-switch a { display: inline-flex; align-items: center; min-height: 44px; }
+.summary { margin: 18px 0 8px; padding: 14px 16px 4px; background: var(--surface-hi); border-radius: 14px; border-inline-start: 4px solid var(--gold); }
+.summary h2 { margin: 0 0 6px; font-size: 19px; }
+.doc-en { margin-top: 26px; font-size: 16px; line-height: 1.7; }
+.doc-en h1 { font-size: 28px; }
+
+@media (min-width: 700px) {
+  .hero { padding-top: 60px; }
+  .features { grid-template-columns: 1fr 1fr; }
+  .doc { padding: 30px 30px 18px; }
+}
