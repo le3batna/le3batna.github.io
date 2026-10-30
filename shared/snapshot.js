@@ -8,6 +8,9 @@
 //
 // decodePayload returns the snapshot in the shape the Dart toJson() writes
 // (known fields only, empty ones left out), or throws a SnapshotError.
+// An app with several kinds of item (رفّ) puts them in shelves: "h" is
+// [{k: key, t: top ≤4, r: recent ≤40, s: stats} ≤8], an entry may name its
+// shelf in "h", and a list may carry a tag in "g".
 // Lengths are counted in Unicode code points, like Dart's `runes.length`,
 // except stat keys, which Dart counts in UTF-16 units (`String.length`).
 
@@ -15,6 +18,10 @@ import { BUY_LINK_MAX, parseBuyLink } from './buylink.js';
 
 const MAX_PAYLOAD = 6000;
 const MAX_INFLATED = 32 * 1024;
+const MAX_SHELVES = 8;
+
+/** A shelf's key (`p`, `g`, …), on a shelf or on an entry. */
+const SHELF_KEY = /^[a-z0-9_-]{1,12}$/;
 
 export class SnapshotError extends Error {
   constructor(message) {
@@ -167,6 +174,8 @@ function entries(raw, max) {
 
 function entryFromJson(json) {
   if (!isObject(json)) throw new SnapshotError('an entry is not an object');
+  const shelf = str(json, 'h', 12);
+  if (shelf !== null && !SHELF_KEY.test(shelf)) throw new SnapshotError('bad shelf on an entry');
   const e = {
     i: str(json, 'i', 80),
     t: str(json, 't', 80),
@@ -176,10 +185,11 @@ function entryFromJson(json) {
     d: int(json, 'd', 19000101, 29991231),
     k: int(json, 'k', 0, 99),
     u: buyUrl(json),
+    h: shelf,
   };
   if (e.i === null && e.t === null) throw new SnapshotError('an entry has no id and no title');
   const out = {};
-  for (const key of ['i', 't', 's', 'r', 'g', 'd', 'k', 'u']) {
+  for (const key of ['i', 't', 's', 'r', 'g', 'd', 'k', 'u', 'h']) {
     if (e[key] !== null) out[key] = e[key];
   }
   return out;
@@ -199,7 +209,37 @@ function listFromJson(json) {
   if (!isObject(json)) throw new SnapshotError('a list is not an object');
   const name = str(json, 'n', 40);
   if (name === null) throw new SnapshotError('a list has no name');
-  return { n: name, i: entries(field(json, 'i'), 6) };
+  const out = { n: name, i: entries(field(json, 'i'), 6) };
+  const tag = str(json, 'g', 24);
+  if (tag !== null) out.g = tag;
+  return out;
+}
+
+function shelfFromJson(json) {
+  if (!isObject(json)) throw new SnapshotError('a shelf is not an object');
+  const key = str(json, 'k', 12);
+  if (key === null || !SHELF_KEY.test(key)) throw new SnapshotError('a shelf has no key');
+  const top = entries(field(json, 't'), 4);
+  const recent = entries(field(json, 'r'), 40);
+  const stats = statsFromJson(field(json, 's'));
+  const out = { k: key };
+  if (top.length) out.t = top;
+  if (recent.length) out.r = recent;
+  if (stats) out.s = stats;
+  return out;
+}
+
+/** Stats: at most 16 keys of at most 24 UTF-16 units, ints 0-10,000,000; null when empty. */
+function statsFromJson(raw) {
+  const rawStats = raw ?? {};
+  if (!isObject(rawStats) || Object.keys(rawStats).length > 16) throw new SnapshotError('bad stats');
+  const stats = [];
+  for (const [key, value] of Object.entries(rawStats)) {
+    if (key.length > 24 || !isInt(value) || value < 0 || value > 10000000) throw new SnapshotError(`bad stat ${key}`);
+    stats.push([key, value === 0 ? 0 : value]);
+  }
+  // fromEntries defines own properties, so even a "__proto__" key stays data.
+  return stats.length ? Object.fromEntries(stats) : null;
 }
 
 function snapshotFromJson(json, app) {
@@ -213,15 +253,13 @@ function snapshotFromJson(json, app) {
   if (p === null || !/^[A-Za-z0-9_.:-]+$/.test(p)) throw new SnapshotError('no profile id');
   const color = str(json, 'c', 6) ?? '';
   if (color.length > 0 && !/^[0-9a-fA-F]{6}$/.test(color)) throw new SnapshotError('bad colour');
-  const rawStats = field(json, 's') ?? {};
-  if (!isObject(rawStats) || Object.keys(rawStats).length > 16) throw new SnapshotError('bad stats');
-  const stats = [];
-  for (const [key, value] of Object.entries(rawStats)) {
-    if (key.length > 24 || !isInt(value) || value < 0 || value > 10000000) throw new SnapshotError(`bad stat ${key}`);
-    stats.push([key, value === 0 ? 0 : value]);
-  }
+  const stats = statsFromJson(field(json, 's'));
   const rawLists = field(json, 'l') ?? [];
   if (!Array.isArray(rawLists) || rawLists.length > 8) throw new SnapshotError('bad lists');
+  const rawShelves = field(json, 'h') ?? [];
+  if (!Array.isArray(rawShelves) || rawShelves.length > MAX_SHELVES) throw new SnapshotError('bad shelves');
+  const shelves = rawShelves.map(shelfFromJson);
+  if (new Set(shelves.map((s) => s.k)).size !== shelves.length) throw new SnapshotError('a shelf twice');
 
   const name = str(json, 'n', 40) ?? '';
   const bio = str(json, 'b', 160) ?? '';
@@ -240,8 +278,8 @@ function snapshotFromJson(json, app) {
   if (day !== null) out.d = day;
   if (top.length) out.t = top;
   if (recent.length) out.r = recent;
-  // fromEntries defines own properties, so even a "__proto__" key stays data.
-  if (stats.length) out.s = Object.fromEntries(stats);
+  if (stats) out.s = stats;
   if (lists.length) out.l = lists;
+  if (shelves.length) out.h = shelves;
   return out;
 }

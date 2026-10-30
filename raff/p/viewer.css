@@ -1,0 +1,835 @@
+/* رفّ profile viewer. Fonts: SIL OFL 1.1, unmodified copies in ../fonts/.
+   Lalezar, Oswald and Playfair Display set the titles on the covers (as in
+   the app's covers.dart); the browser loads each only when a cover uses it. */
+
+@font-face {
+  font-family: 'Reem Kufi';
+  src: url('../fonts/ReemKufi-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Reem Kufi';
+  src: url('../fonts/ReemKufi-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  src: url('../fonts/IBMPlexSansArabic-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  src: url('../fonts/IBMPlexSansArabic-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Sans Arabic';
+  src: url('../fonts/IBMPlexSansArabic-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Lalezar';
+  src: url('../fonts/Lalezar-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Oswald';
+  src: url('../fonts/Oswald-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('../fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  --night: #170d12;
+  --surface: #22141a;
+  --surface-2: #2e1c24;
+  --niche: #2a1a20;
+  --cream: #f5ebdd;
+  --cream-2: #cdbdae;
+  --cream-3: #b7a08f;
+  --gold: #d3a65a;
+  --gold-soft: rgba(211, 166, 90, 0.45);
+  --hair: rgba(245, 235, 221, 0.11);
+  --display: 'Reem Kufi', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  --gutter: 22px;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--night);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--night);
+  color: var(--cream);
+  font: 400 16px/1.75 var(--body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--night);
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+h1,
+h2,
+h3,
+p,
+ol,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+/* User text keeps the page's alignment whatever its own direction. */
+html[dir='rtl'] .u {
+  text-align: right;
+}
+html[dir='ltr'] .u {
+  text-align: left;
+}
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 var(--gutter) calc(48px + env(safe-area-inset-bottom));
+}
+
+/* ------------------------------------------------------------- top bar */
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: calc(18px + env(safe-area-inset-top));
+}
+
+.wordmark {
+  font: 700 30px/1 var(--display);
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0;
+}
+
+.bar-get {
+  font: 500 14px/1 var(--body);
+  color: var(--gold);
+  text-decoration: none;
+  padding: 9px 14px 10px;
+  border: 1px solid var(--gold-soft);
+  border-radius: 9px;
+}
+
+.bar-get:hover {
+  border-color: var(--gold);
+}
+
+/* ------------------------------------------------------------- profile */
+
+.who {
+  padding-top: 40px;
+}
+
+.avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #5b3a29;
+  box-shadow:
+    0 0 0 3px var(--night),
+    0 0 0 4px rgba(211, 166, 90, 0.55);
+  margin-inline-start: 4px;
+}
+
+.avatar span {
+  font: 400 42px/1 var(--emoji);
+  max-width: 76px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.avatar .initial {
+  font: 700 38px/1 var(--display);
+  color: var(--cream);
+}
+
+.name {
+  margin-top: 22px;
+  font: 700 clamp(31px, 9.2vw, 42px) / 1.22 var(--display);
+  overflow-wrap: anywhere;
+}
+
+.bio {
+  margin-top: 10px;
+  max-width: 34em;
+  color: var(--cream-2);
+  font-size: 16.5px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+/* ----------------------------------------------------- section heading */
+
+.section {
+  margin-top: 54px;
+}
+
+.section-h {
+  font: 500 21px/1.3 var(--display);
+  color: var(--cream);
+  margin-bottom: 18px;
+}
+
+/* ------------------------------------------------------------ month */
+
+.month {
+  margin-top: 28px;
+  padding: 13px 16px 14px;
+  background: var(--surface);
+  border: 1px solid rgba(211, 166, 90, 0.35);
+  border-radius: 14px;
+  font: 500 17px/1.5 var(--display);
+  color: var(--cream);
+}
+
+/* ----------------------------------------------------------- shelves */
+
+.shelf {
+  margin-top: 50px;
+}
+
+.shelf-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 14px;
+  margin-bottom: 18px;
+}
+
+.shelf-h {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font: 500 21px/1.3 var(--display);
+  color: var(--cream);
+}
+
+.glyph {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.shelf-counts {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--cream-3);
+}
+
+/* ------------------------------------------------- the niche and shelf */
+
+/* An arched wall niche, the kind old houses kept oud and perfume in. */
+.niche {
+  position: relative;
+  background: var(--niche);
+  border-top-left-radius: 50% 98px;
+  border-top-right-radius: 50% 98px;
+  padding: 70px 14px 0;
+  box-shadow: inset 0 26px 34px -22px rgba(0, 0, 0, 0.7);
+}
+
+.niche::before {
+  content: '';
+  position: absolute;
+  inset: 7px 7px 0;
+  border: 1px solid rgba(211, 166, 90, 0.22);
+  border-bottom: 0;
+  border-top-left-radius: 50% 91px;
+  border-top-right-radius: 50% 91px;
+  pointer-events: none;
+}
+
+.stand-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), minmax(0, var(--col, 78px)));
+  justify-content: center;
+  align-items: end;
+  gap: 10px;
+  min-height: 96px;
+}
+
+.stand-row .bottle {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Covers stand on a plain rack: no arch, the shelf's own accent on the sill. */
+.rack {
+  --col: 92px;
+  padding: 0 10px;
+}
+
+.rack .stand-row {
+  gap: 12px;
+  min-height: 0;
+}
+
+.niche-intro {
+  --col: 64px;
+  padding-inline: 10px;
+}
+
+.niche-intro .stand-row {
+  gap: 6px;
+}
+
+.sill {
+  position: relative;
+  height: 13px;
+  margin: 0 -9px;
+  border-radius: 2px;
+  background: linear-gradient(#4b2f37, #2b1a20);
+  border-top: 1px solid var(--accent, var(--gold));
+  box-shadow: 0 16px 20px -12px rgba(0, 0, 0, 0.8);
+}
+
+.captions {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), minmax(0, var(--col, 78px)));
+  justify-content: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 0 14px;
+}
+
+.rack + .sill + .captions {
+  --col: 92px;
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.cap {
+  text-align: center;
+  min-width: 0;
+}
+
+html .cap .u {
+  text-align: center;
+}
+
+.cap-name {
+  font: 500 13.5px/1.45 var(--body);
+  color: var(--cream);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.cap-brand {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--cream-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  margin-top: 5px;
+  vertical-align: middle;
+}
+
+.stars svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+/* Bottles are set down on the shelf once, when the page opens. */
+@media (prefers-reduced-motion: no-preference) {
+  .arrive .bottle,
+  .arrive .cover {
+    animation: set-down 620ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+    animation-delay: calc(140ms + var(--i, 0) * 85ms);
+  }
+}
+
+@keyframes set-down {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------ covers */
+
+/* A cover drawn like the app's: the art is an SVG, the title HTML text sized
+   in units of the cover's width (1cqw = 1% of it, inside the cover). The
+   corners are 3.5% of the width (5% for a game case), at least 2px; on the
+   cover itself cqw would read the page's width, so they are percentages. */
+.cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 0.68;
+  container-type: inline-size;
+  overflow: hidden;
+  border-radius: max(2px, 3.5%) / max(2px, 2.38%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.cover-game {
+  aspect-ratio: 0.8;
+  border-radius: max(2px, 5%) / max(2px, 4%);
+}
+
+.cover-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.cover-title {
+  position: absolute;
+  margin: 0;
+  font-size: calc(var(--fs, 12) * 1cqw);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines, 4);
+  line-clamp: var(--lines, 4);
+  overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+.f-lalezar {
+  font-family: 'Lalezar', 'Reem Kufi', sans-serif;
+  font-weight: 400;
+}
+
+.f-kufi {
+  font-family: 'Reem Kufi', 'Lalezar', sans-serif;
+  font-weight: 700;
+}
+
+.f-oswald {
+  font-family: 'Oswald', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+  font-weight: 600;
+}
+
+.f-playfair {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------- recent items strip */
+
+/* Newest first, scrolling sideways, bleeding to the screen's edges. */
+.strip {
+  display: flex;
+  gap: 12px;
+  margin: 22px calc(-1 * var(--gutter)) 0;
+  padding: 6px var(--gutter) 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.tile {
+  flex: none;
+  width: 76px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.tile-art {
+  height: 98px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.tile-art .cover {
+  width: 66px;
+}
+
+.tile-art .cover-game {
+  width: 76px;
+}
+
+.tile-art .bottle {
+  width: 54px;
+  height: 90px;
+}
+
+.tile-name {
+  margin-top: 7px;
+  font-weight: 700;
+  font-size: 12.5px;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html .tile .u {
+  text-align: center;
+}
+
+.tile-meta {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--cream-3);
+  text-align: center;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ------------------------------------------------ lists and combos */
+
+.list-card {
+  padding: 18px 0 20px;
+  border-top: 1px solid var(--hair);
+}
+
+.list-name {
+  font: 500 18px/1.4 var(--display);
+  overflow-wrap: anywhere;
+}
+
+.list-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.list-arts {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  flex: none;
+}
+
+.list-arts .bottle {
+  width: 30px;
+  height: 50px;
+}
+
+.list-arts .bottle + .bottle {
+  margin-inline-start: -12px;
+}
+
+.list-arts .cover {
+  width: 32px;
+}
+
+.list-arts .cover-game {
+  width: 38px;
+}
+
+.list-parts {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--cream-2);
+  padding-bottom: 2px;
+}
+
+.list-part {
+  overflow-wrap: anywhere;
+}
+
+.list-plus {
+  color: var(--gold);
+  padding: 0 6px;
+}
+
+/* ------------------------------------------------------ buy links */
+
+.buy-list {
+  list-style: none;
+}
+
+.buy-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid var(--hair);
+}
+
+.buy-art {
+  flex: none;
+  width: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.buy-art .bottle {
+  width: 26px;
+  height: 44px;
+}
+
+.buy-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.buy-name {
+  font-weight: 700;
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+.buy-brand {
+  font-size: 13px;
+  color: var(--cream-3);
+}
+
+.buy {
+  flex: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 46%;
+  padding: 7px 14px 8px;
+  border: 1px solid var(--gold);
+  border-radius: 10px;
+  color: var(--cream);
+  text-decoration: none;
+  line-height: 1.25;
+}
+
+.buy:hover {
+  background: rgba(211, 166, 90, 0.12);
+}
+
+.buy-l {
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.buy-d {
+  font-size: 12px;
+  color: var(--gold);
+  max-width: 100%;
+  /* The whole domain, never cut: it is what keeps the link honest. */
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* ------------------------------------------- the buy link's sheet */
+
+.confirm {
+  width: min(400px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 24px 22px 12px;
+  border: 1px solid rgba(211, 166, 90, 0.35);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--cream);
+  text-align: center;
+  font: 400 15px/1.6 var(--body);
+}
+
+.confirm::backdrop {
+  background: rgba(10, 5, 8, 0.72);
+}
+
+.confirm-h {
+  font: 500 20px/1.35 var(--display);
+}
+
+.confirm-box {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: 1px solid rgba(211, 166, 90, 0.5);
+  border-radius: 14px;
+}
+
+.confirm-domain {
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.confirm-url {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--cream-3);
+  overflow-wrap: anywhere;
+}
+
+.confirm-note {
+  margin-top: 12px;
+  font-size: 13.5px;
+  color: var(--cream-3);
+}
+
+.confirm-open {
+  display: flex;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.confirm-cancel {
+  margin-top: 6px;
+  padding: 12px 18px;
+  font: 500 15px/1 var(--body);
+  color: var(--gold);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------- call to action */
+
+.cta {
+  margin-top: 64px;
+  padding-top: 30px;
+  border-top: 1px solid var(--hair);
+}
+
+.cta-h {
+  font: 700 25px/1.3 var(--display);
+}
+
+.cta-p {
+  margin-top: 8px;
+  color: var(--cream-2);
+  max-width: 30em;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  margin-top: 22px;
+  padding: 0 30px 2px;
+  border-radius: 11px;
+  background: var(--gold);
+  color: var(--night);
+  font: 700 17px/1 var(--body);
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.button:hover {
+  background: #ddb571;
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.meta {
+  margin-top: 30px;
+  font-size: 12.5px;
+  color: var(--cream-3);
+}
+
+/* ------------------------------------------------ intro and error */
+
+.lead {
+  padding-top: 40px;
+}
+
+.lead-h {
+  margin-top: 38px;
+  font: 700 clamp(29px, 8.4vw, 38px) / 1.25 var(--display);
+}
+
+.lead-p {
+  margin-top: 12px;
+  color: var(--cream-2);
+  font-size: 16.5px;
+  line-height: 1.8;
+  max-width: 30em;
+}
+
+.niche-empty {
+  min-height: 168px;
+}
+
+@media (min-width: 560px) {
+  .who,
+  .lead {
+    padding-top: 56px;
+  }
+}
