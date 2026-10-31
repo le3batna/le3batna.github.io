@@ -10,7 +10,8 @@
 // (known fields only, empty ones left out), or throws a SnapshotError.
 // An app with several kinds of item (رفّ) puts them in shelves: "h" is
 // [{k: key, t: top ≤4, r: recent ≤40, s: stats} ≤8], an entry may name its
-// shelf in "h", and a list may carry a tag in "g".
+// shelf in "h" and carry "l": 1 when the owner liked it, and a list may
+// carry a tag in "g".
 // Lengths are counted in Unicode code points, like Dart's `runes.length`,
 // except stat keys, which Dart counts in UTF-16 units (`String.length`).
 
@@ -186,12 +187,15 @@ function entryFromJson(json) {
     k: int(json, 'k', 0, 99),
     u: buyUrl(json),
     h: shelf,
+    l: int(json, 'l', 0, 1),
   };
   if (e.i === null && e.t === null) throw new SnapshotError('an entry has no id and no title');
   const out = {};
   for (const key of ['i', 't', 's', 'r', 'g', 'd', 'k', 'u', 'h']) {
     if (e[key] !== null) out[key] = e[key];
   }
+  // «أعجبني»: only a like is kept (like the Dart toJson).
+  if (e.l === 1) out.l = 1;
   return out;
 }
 

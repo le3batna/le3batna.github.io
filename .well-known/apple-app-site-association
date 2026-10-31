@@ -14,6 +14,14 @@
           {
             "/": "/raff/p/*",
             "comment": "The same viewer under another file name, such as index.html."
+          },
+          {
+            "/": "/raff/c/",
+            "comment": "A Raff circle invite link; the invite code is in the # fragment."
+          },
+          {
+            "/": "/raff/c/*",
+            "comment": "The same invite page under another file name, such as index.html."
           }
         ]
       },
@@ -29,6 +37,14 @@
           {
             "/": "/abyat/p/*",
             "comment": "The same viewer under another file name, such as index.html."
+          },
+          {
+            "/": "/abyat/c/",
+            "comment": "An Abyat circle invite link; the invite code is in the # fragment."
+          },
+          {
+            "/": "/abyat/c/*",
+            "comment": "The same invite page under another file name, such as index.html."
           }
         ]
       },
@@ -47,14 +63,18 @@
         "appID": "2NJYQ5VT4M.com.asimalhwiriny.raff",
         "paths": [
           "/raff/p/",
-          "/raff/p/*"
+          "/raff/p/*",
+          "/raff/c/",
+          "/raff/c/*"
         ]
       },
       {
         "appID": "2NJYQ5VT4M.com.asimalhwiriny.abyat",
         "paths": [
           "/abyat/p/",
-          "/abyat/p/*"
+          "/abyat/p/*",
+          "/abyat/c/",
+          "/abyat/c/*"
         ]
       },
       {

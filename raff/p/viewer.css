@@ -1,6 +1,7 @@
 /* رفّ profile viewer. Fonts: SIL OFL 1.1, unmodified copies in ../fonts/.
    Lalezar, Oswald and Playfair Display set the titles on the covers (as in
-   the app's covers.dart); the browser loads each only when a cover uses it. */
+   the app's covers.dart), Amiri and Aref Ruqaa the Arabic titles of books;
+   the browser loads each only when a cover uses it. */
 
 @font-face {
   font-family: 'Reem Kufi';
@@ -47,6 +48,20 @@
 @font-face {
   font-family: 'Playfair Display';
   src: url('../fonts/PlayfairDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Amiri';
+  src: url('../fonts/Amiri-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Aref Ruqaa';
+  src: url('../fonts/ArefRuqaa-Bold.ttf') format('truetype');
   font-weight: 700;
   font-display: swap;
 }
@@ -483,6 +498,62 @@ html .cap .u {
   font-weight: 700;
 }
 
+.f-amiri {
+  font-family: 'Amiri', 'Times New Roman', serif;
+  font-weight: 700;
+}
+
+.f-ruqaa {
+  font-family: 'Aref Ruqaa', 'Amiri', serif;
+  font-weight: 700;
+}
+
+.f-plex {
+  font-family: 'IBM Plex Sans Arabic', sans-serif;
+  font-weight: 500;
+}
+
+/* A book: a little taller than other covers, the bound edge (left, or right
+   for an Arabic book) square, the fore-edge rounded; the title and the
+   author sit in boxes laid out like the app's (bookLayout), in cqw. */
+.cover-book {
+  aspect-ratio: 0.66;
+  border-radius: max(1.5px, 2%) max(1.5px, 4.5%) max(1.5px, 4.5%) max(1.5px, 2%) / max(1.5px, 1.3%) max(1.5px, 3%) max(1.5px, 3%) max(1.5px, 1.3%);
+}
+
+.cover-book.bound-right {
+  border-radius: max(1.5px, 4.5%) max(1.5px, 2%) max(1.5px, 2%) max(1.5px, 4.5%) / max(1.5px, 3%) max(1.5px, 1.3%) max(1.5px, 1.3%) max(1.5px, 3%);
+}
+
+.book-box {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.book-title {
+  margin: 0;
+  max-width: 100%;
+  font-size: calc(var(--fs, 12) * 1cqw);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines, 4);
+  line-clamp: var(--lines, 4);
+  overflow: hidden;
+  overflow-wrap: break-word;
+  hyphens: none;
+}
+
+.book-author {
+  max-width: 100%;
+  font-size: calc(var(--fs, 6) * 1cqw);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
 /* ------------------------------------------------- recent items strip */
 
 /* Newest first, scrolling sideways, bleeding to the screen's edges. */
@@ -522,6 +593,10 @@ html .cap .u {
 
 .tile-art .cover-game {
   width: 76px;
+}
+
+.tile-art .cover-book {
+  width: 64px;
 }
 
 .tile-art .bottle {
@@ -596,6 +671,10 @@ html .tile .u {
 
 .list-arts .cover-game {
   width: 38px;
+}
+
+.list-arts .cover-book {
+  width: 31px;
 }
 
 .list-parts {
@@ -832,4 +911,33 @@ html .tile .u {
   .lead {
     padding-top: 56px;
   }
+}
+
+/* ------------------------------------------------------- «أعجبني» */
+
+/* A liked entry: its art with a small heart in the corner. */
+.liked {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.heart {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #22141a;
+  border: 0.8px solid rgba(232, 84, 106, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  display: grid;
+  place-items: center;
+}
+
+.heart svg {
+  width: 13px;
+  height: 13px;
 }

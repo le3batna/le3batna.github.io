@@ -1,6 +1,6 @@
 // رفّ profile viewer. It decodes the snapshot in the link's fragment
 // (web/shared/snapshot.js) and draws the profile shelf by shelf: perfumes,
-// games, movies, series, comics, then the month across them, the lists, the
+// games, movies, series, comics, books, then the month across them, the lists, the
 // layering combos and the buy links. The fragment never leaves the browser,
 // and the page makes no request of its own: titles ride in the link (the
 // app embeds a short title for catalog items), so no catalog is fetched.
@@ -22,6 +22,7 @@ import { decodePayload, payloadFromHash } from '../../shared/snapshot.js';
 import { censor } from '../../shared/filter.js';
 import { buyLinkIsClean, parseBuyLink } from '../../shared/buylink.js';
 import { KIND_OF_CODE, SHELF_STYLES, coverElement, glyphIcon } from './covers.js';
+import { NO_RATING_BOOKS } from './no-rating.js';
 
 // TODO: replace with رفّ's real App Store link once its App Store record exists.
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6828913497';
@@ -36,17 +37,18 @@ export const LABELS = {
     getApp: 'حمّل رفّ',
     pageTitle: 'رفّ {name}',
     noName: 'صاحب الرفّ',
-    shelfTitle: { perfume: 'عطوري', game: 'ألعابي', movie: 'أفلامي', series: 'مسلسلاتي', comic: 'مانجا وكوميكس' },
+    shelfTitle: { perfume: 'عطوري', game: 'ألعابي', movie: 'أفلامي', series: 'مسلسلاتي', comic: 'مانجا وكوميكس', book: 'كتبي' },
     // What an item shows when the link carries no title for it (the app
     // drops catalog titles last when a link is too long): count.<kind>.1,
     // and the shelf's name for comics.
-    shelfItem: { perfume: 'عطر', game: 'لعبة', movie: 'فيلم', series: 'مسلسل', comic: 'مانجا' },
+    shelfItem: { perfume: 'عطر', game: 'لعبة', movie: 'فيلم', series: 'مسلسل', comic: 'مانجا', book: 'كتاب' },
     status: {
       perfume: { have: 'عندي', want: 'أبغاه', had: 'كان عندي' },
       game: { played: 'لعبتها', playing: 'ألعبها', want: 'أبغى ألعبها', dropped: 'تركتها' },
       movie: { watched: 'شفته', want: 'أبغى أشوفه' },
       series: { watching: 'أتابعه', finished: 'خلّصته', want: 'أبغى أتابعه', dropped: 'تركته' },
       comic: { reading: 'أقراها', read: 'قريتها', want: 'أبغى أقراها', dropped: 'تركتها' },
+      book: { read: 'قريته', reading: 'أقراه', want: 'أبغى أقراه', dropped: 'تركته' },
     },
     wears: 'لبسة',
     count: {
@@ -55,6 +57,7 @@ export const LABELS = {
       movie: { one: 'فيلم', two: 'فيلمين', few: '{n} أفلام', many: '{n} فيلم' },
       series: { one: 'مسلسل', two: 'مسلسلين', few: '{n} مسلسلات', many: '{n} مسلسل' },
       comic: { one: 'عنوان مانجا', two: 'عنوانين مانجا', few: '{n} عناوين مانجا', many: '{n} عنوان مانجا' },
+      book: { one: 'كتاب', two: 'كتابين', few: '{n} كتب', many: '{n} كتاب' },
     },
     monthLine: 'هالشهر: {list}',
     listJoin: '، ',
@@ -70,6 +73,8 @@ export const LABELS = {
     rewatch: 'إعادة',
     lists: 'قوائمي',
     combos: 'خلطاتي',
+    liked: 'أعجبني',
+    likedOne: 'أعجبه',
     buyTitle: 'روابط الشراء',
     buyHere: 'اشتره من هنا',
     confirmTitle: 'تفتح موقع خارجي؟',
@@ -82,10 +87,10 @@ export const LABELS = {
     dayMonth: '{day} {month}',
     months: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'],
     ctaTitle: 'سوّ رفّك',
-    ctaText: 'عطورك وألعابك وأفلامك ومسلسلاتك ومانجاتك، كلها على جوالك وبدون حساب.',
+    ctaText: 'عطورك وألعابك وأفلامك ومسلسلاتك ومانجاتك وكتبك، كلها على جوالك وبدون حساب.',
     updated: 'آخر تحديث {date}',
     introTitle: 'ذوقك كله على رفّ واحد',
-    introText: 'عطورك وألعابك وأفلامك ومسلسلاتك ومانجاتك، كلها في ملف واحد تشاركه بضغطة.',
+    introText: 'عطورك وألعابك وأفلامك ومسلسلاتك ومانجاتك وكتبك، كلها في ملف واحد تشاركه بضغطة.',
     errorTitle: 'الرابط ناقص أو تالف',
     errorText: 'اطلب رابط الرفّ كامل مرة ثانية.',
     oldBrowserTitle: 'هذا المتصفح لا يدعم فتح الرابط',
@@ -97,14 +102,15 @@ export const LABELS = {
     getApp: 'Get Raff',
     pageTitle: '{name} on Raff',
     noName: 'A Raff shelf',
-    shelfTitle: { perfume: 'Perfumes', game: 'Games', movie: 'Movies', series: 'Series', comic: 'Comics & manga' },
-    shelfItem: { perfume: 'Perfume', game: 'Game', movie: 'Movie', series: 'Series', comic: 'Comic' },
+    shelfTitle: { perfume: 'Perfumes', game: 'Games', movie: 'Movies', series: 'Series', comic: 'Comics & manga', book: 'Books' },
+    shelfItem: { perfume: 'Perfume', game: 'Game', movie: 'Movie', series: 'Series', comic: 'Comic', book: 'Book' },
     status: {
       perfume: { have: 'Have', want: 'Want', had: 'Used to have' },
       game: { played: 'Played', playing: 'Playing', want: 'Want to play', dropped: 'Dropped' },
       movie: { watched: 'Watched', want: 'Want to watch' },
       series: { watching: 'Watching', finished: 'Finished', want: 'Want to watch', dropped: 'Dropped' },
       comic: { reading: 'Reading', read: 'Read', want: 'Want to read', dropped: 'Dropped' },
+      book: { read: 'Read', reading: 'Reading', want: 'Want to read', dropped: 'Dropped' },
     },
     wears: 'wears',
     count: {
@@ -113,6 +119,7 @@ export const LABELS = {
       movie: { one: '1 movie', two: '2 movies', few: '{n} movies', many: '{n} movies' },
       series: { one: '1 series', two: '2 series', few: '{n} series', many: '{n} series' },
       comic: { one: '1 comic', two: '2 comics', few: '{n} comics', many: '{n} comics' },
+      book: { one: '1 book', two: '2 books', few: '{n} books', many: '{n} books' },
     },
     monthLine: 'This month: {list}',
     listJoin: ', ',
@@ -128,6 +135,8 @@ export const LABELS = {
     rewatch: 'Rewatch',
     lists: 'My lists',
     combos: 'My combos',
+    liked: 'Liked',
+    likedOne: 'Liked',
     buyTitle: 'Where to buy',
     buyHere: 'Buy it here',
     confirmTitle: 'Open an external website?',
@@ -140,10 +149,10 @@ export const LABELS = {
     dayMonth: '{month} {day}',
     months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     ctaTitle: 'Make your own shelf',
-    ctaText: 'Your perfumes, games, movies, series and comics, all on your phone. No account needed.',
+    ctaText: 'Your perfumes, games, movies, series, comics and books, all on your phone. No account needed.',
     updated: 'Updated {date}',
     introTitle: 'Your whole taste on one shelf',
-    introText: 'Your perfumes, games, movies, series and comics, in one profile you share in a tap.',
+    introText: 'Your perfumes, games, movies, series, comics and books, in one profile you share in a tap.',
     errorTitle: 'This link is incomplete or damaged',
     errorText: 'Ask the shelf’s owner to send it again, and copy the whole link.',
     oldBrowserTitle: 'This browser can’t open the link',
@@ -158,10 +167,14 @@ export const STATUSES = {
   movie: ['watched', 'want'],
   series: ['watching', 'finished', 'want', 'dropped'],
   comic: ['reading', 'read', 'want', 'dropped'],
+  book: ['read', 'reading', 'want', 'dropped'],
 };
 
 /** The list tag of a perfume layering combo (kComboListTag). */
 export const COMBO_TAG = 'combo';
+
+/** The list tag of «أعجبني», what the owner liked (kLikedListTag). */
+export const LIKED_TAG = 'liked';
 
 /** Perfume families in the app's order (PerfumeFamily), with their colours. */
 export const FAMILIES = ['oud', 'amber', 'floral', 'fresh', 'woody', 'gourmand', 'musk', 'aromatic', 'leather', 'spicy'];
@@ -179,6 +192,8 @@ export const FAMILY_COLORS = {
 };
 export const UNKNOWN_FAMILY = '#8C7B6B';
 const GOLD = '#D3A65A';
+/** The heart of «أعجبني» (the app's kHeartColor). */
+const HEART_COLOR = '#E8546A';
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** About how wide (CSS px) covers are drawn where they appear. */
@@ -276,9 +291,31 @@ export function snapshotCombos(snap) {
   return snap?.h?.length ? lists.filter((l) => l.g === COMBO_TAG) : lists;
 }
 
-/** The lists across shelves (قوائمي): none in an old link. */
+/** The lists across shelves (قوائمي): none in an old link; never the combos or «أعجبني». */
 export function snapshotLists(snap) {
-  return snap?.h?.length ? (snap.l ?? []).filter((l) => l.g !== COMBO_TAG) : [];
+  return snap?.h?.length ? (snap.l ?? []).filter((l) => l.g !== COMBO_TAG && l.g !== LIKED_TAG) : [];
+}
+
+/**
+ * «أعجبني» (snapshotLiked): the link's liked list, else the liked entries
+ * ("l": 1) of its shelves, top fours first, once each, tagged with their
+ * shelf. Empty for a link made before likes.
+ */
+export function snapshotLiked(snap) {
+  const list = (snap?.l ?? []).find((l) => l.g === LIKED_TAG);
+  if (list) return list.i;
+  const seen = new Set();
+  const out = [];
+  for (const shelf of snapshotShelves(snap)) {
+    for (const e of [...shelf.t, ...shelf.r]) {
+      const tagged = { ...e, h: e.h ?? shelf.k };
+      if (e.l === 1 && !seen.has(itemKey(tagged))) {
+        seen.add(itemKey(tagged));
+        out.push(tagged);
+      }
+    }
+  }
+  return out;
 }
 
 /** Identifies an item across the snapshot: its shelf and id, or its own text (SnapshotEntry.itemKey). */
@@ -519,9 +556,26 @@ function bottle(shape, color) {
   return svg;
 }
 
-/** An entry's art: its bottle, or its cover drawn about [px] wide. */
+/** An entry's art: its bottle, or its cover drawn about [px] wide (a book's with its author). */
 function art(view, px) {
-  return view.kind === 'perfume' ? bottle(view.shape, view.color) : coverElement(view.kind, view.title, view.seed, px);
+  if (view.kind === 'perfume') return bottle(view.shape, view.color);
+  return coverElement(view.kind, view.title, view.seed, px, view.kind === 'book' ? view.subtitle ?? '' : '');
+}
+
+const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.8 4.2 7.3C19.5 16.4 12 21 12 21z';
+
+/** [node] with the small heart of a liked entry ("l": 1), else as it is. */
+function hearted(ctx, node, e) {
+  if (e.l !== 1) return node;
+  const wrap = el('span', 'liked');
+  const badge = el('span', 'heart');
+  badge.setAttribute('role', 'img');
+  badge.setAttribute('aria-label', ctx.L.likedOne);
+  const svg = svgNode('svg', { viewBox: '0 0 24 24', 'aria-hidden': 'true', focusable: 'false' });
+  add(svg, 'path', { d: HEART, fill: HEART_COLOR });
+  badge.append(svg);
+  wrap.append(node, badge);
+  return wrap;
 }
 
 // ------------------------------------------------------------------ stars
@@ -609,7 +663,7 @@ function shelfHeading(ctx, shelf) {
 /** A shelf's top four: on the shelf, with captions (title, subtitle, stars). */
 function topFour(ctx, shelf) {
   const views = shelf.t.map((e) => entryView(ctx.L, e, shelf.kind));
-  const arts = views.map((v) => art(v, COVER_PX.top));
+  const arts = views.map((v, i) => hearted(ctx, art(v, COVER_PX.top), shelf.t[i]));
   const perfume = shelf.kind === 'perfume';
   const [box, sill] = standing(arts, perfume ? 'niche arrive' : 'rack arrive');
   const caps = el('ul', 'captions');
@@ -618,7 +672,8 @@ function topFour(ctx, shelf) {
     const cap = el('li', 'cap');
     cap.append(userText('p', 'cap-name', v.title));
     if (v.subtitle) cap.append(userText('p', 'cap-brand', v.subtitle));
-    const st = stars(ctx, shelf.t[i].r);
+    // A hadith collection or a tafsir shows no stars, whatever the link says.
+    const st = shelf.kind === 'book' && NO_RATING_BOOKS.has(shelf.t[i].i) ? null : stars(ctx, shelf.t[i].r);
     if (st) cap.append(st);
     caps.append(cap);
   });
@@ -632,7 +687,7 @@ function recentStrip(ctx, shelf) {
     const v = entryView(ctx.L, e, shelf.kind);
     const li = el('li', `tile tile-${v.kind}`);
     const box = el('div', 'tile-art');
-    box.append(art(v, COVER_PX.tile));
+    box.append(hearted(ctx, art(v, COVER_PX.tile), e));
     li.append(box, userText('p', 'tile-name', v.title));
     const meta = [e.d !== undefined ? formatDay(ctx.L, e.d, ctx.today) : '', tagLabel(ctx.L, shelf.kind, e.g)].filter(Boolean).join(' · ');
     if (meta) li.append(el('p', 'tile-meta', meta));
@@ -647,6 +702,22 @@ function shelfSection(ctx, shelf) {
   sec.append(shelfHeading(ctx, shelf));
   if (shelf.t.length) sec.append(...topFour(ctx, shelf));
   if (shelf.r.length) sec.append(recentStrip(ctx, shelf));
+  return sec;
+}
+
+/** «أعجبني»: what the owner liked, across shelves, in a strip. */
+function likedSection(ctx, entries) {
+  const sec = section(ctx.L.liked, 'liked-section');
+  const ul = el('ul', 'strip');
+  for (const e of entries) {
+    const v = entryView(ctx.L, e, null);
+    const li = el('li', `tile tile-${v.kind}`);
+    const box = el('div', 'tile-art');
+    box.append(hearted(ctx, art(v, COVER_PX.tile), { ...e, l: 1 }));
+    li.append(box, userText('p', 'tile-name', v.title));
+    ul.append(li);
+  }
+  sec.append(ul);
   return sec;
 }
 
@@ -752,7 +823,9 @@ function callToAction(ctx, day) {
 
 /**
  * The profile of a decoded snapshot: header, the month across shelves,
- * every shelf in its order, lists, combos, buy links, the app's button.
+ * every shelf in its order (liked items carry a heart), «أعجبني», lists,
+ * combos, buy links, the app's button. Covers are drawn here, never loaded
+ * (the page asks no other site for anything, real covers included).
  */
 export function profileView(snap, ctx = viewContext()) {
   const { L } = ctx;
@@ -766,6 +839,8 @@ export function profileView(snap, ctx = viewContext()) {
   const month = monthLine(L, shelves);
   if (month) nodes.push(el('p', 'month', month));
   for (const shelf of shelves) nodes.push(shelfSection(ctx, shelf));
+  const liked = snapshotLiked(snap);
+  if (liked.length) nodes.push(likedSection(ctx, liked));
   const lists = snapshotLists(snap);
   if (lists.length) nodes.push(listsSection(ctx, L.lists, lists, null, 'lists'));
   const combos = snapshotCombos(snap);
@@ -786,6 +861,7 @@ export function introView(ctx = viewContext()) {
     coverElement('movie', L.shelfTitle.movie, 'intro-movie', COVER_PX.tile),
     coverElement('series', L.shelfTitle.series, 'intro-series', COVER_PX.tile),
     coverElement('comic', L.shelfItem.comic, 'intro-comic', COVER_PX.tile),
+    coverElement('book', L.shelfTitle.book, 'intro-book', COVER_PX.tile),
   ];
   lead.append(...standing(items, 'niche niche-intro arrive'), el('h1', 'lead-h', L.introTitle), el('p', 'lead-p', L.introText), appButton(ctx));
   return { nodes: [topBar(ctx, false), lead], title: L.appName };
