@@ -88,16 +88,14 @@ ol {
   font: 400 30px/1.5 var(--ruqaa);
 }
 
-/* The mark: two staggered strokes, a صدر and its عجز. */
+/* The app icon before the name (the icon the app ships, ../assets/). */
 .wordmark::before {
   content: '';
   display: block;
-  width: 22px;
-  height: 15px;
-  border-radius: 2px;
-  background:
-    linear-gradient(var(--teal), var(--teal)) right 0 top 0 / 70% 30% no-repeat,
-    linear-gradient(var(--teal), var(--teal)) left 0 bottom 0 / 70% 30% no-repeat;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: url('../assets/apple-touch-icon.png') center / cover no-repeat;
 }
 
 .invite {
