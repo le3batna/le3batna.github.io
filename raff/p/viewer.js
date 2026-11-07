@@ -44,13 +44,13 @@ export const LABELS = {
     shelfItem: { perfume: 'عطر', game: 'لعبة', movie: 'فيلم', series: 'مسلسل', comic: 'مانجا', book: 'كتاب' },
     status: {
       perfume: { have: 'عندي', want: 'أبغاه', had: 'كان عندي' },
-      game: { played: 'لعبتها', playing: 'ألعبها', want: 'أبغى ألعبها', dropped: 'تركتها' },
+      game: { played: 'لعبتها', playing: 'ألعبها الحين', want: 'أبغى ألعبها', dropped: 'تركتها' },
       movie: { watched: 'شفته', want: 'أبغى أشوفه' },
-      series: { watching: 'أتابعه', finished: 'خلّصته', want: 'أبغى أتابعه', dropped: 'تركته' },
-      comic: { reading: 'أقراها', read: 'قريتها', want: 'أبغى أقراها', dropped: 'تركتها' },
-      book: { read: 'قريته', reading: 'أقراه', want: 'أبغى أقراه', dropped: 'تركته' },
+      series: { watching: 'أتابعه الحين', finished: 'خلّصته', want: 'أبغى أتابعه', dropped: 'تركته' },
+      comic: { reading: 'أقراها الحين', read: 'قريتها', want: 'أبغى أقراها', dropped: 'تركتها' },
+      book: { read: 'قريته', reading: 'أقراه الحين', want: 'أبغى أقراه', dropped: 'تركته' },
     },
-    wears: 'لبسة',
+    wears: 'مرات اللبس',
     count: {
       perfume: { one: 'عطر', two: 'عطرين', few: '{n} عطور', many: '{n} عطر' },
       game: { one: 'لعبة', two: 'لعبتين', few: '{n} ألعاب', many: '{n} لعبة' },
@@ -106,13 +106,13 @@ export const LABELS = {
     shelfItem: { perfume: 'Perfume', game: 'Game', movie: 'Movie', series: 'Series', comic: 'Comic', book: 'Book' },
     status: {
       perfume: { have: 'Have', want: 'Want', had: 'Used to have' },
-      game: { played: 'Played', playing: 'Playing', want: 'Want to play', dropped: 'Dropped' },
+      game: { played: 'Played', playing: 'Playing now', want: 'Want to play', dropped: 'Dropped' },
       movie: { watched: 'Watched', want: 'Want to watch' },
-      series: { watching: 'Watching', finished: 'Finished', want: 'Want to watch', dropped: 'Dropped' },
-      comic: { reading: 'Reading', read: 'Read', want: 'Want to read', dropped: 'Dropped' },
-      book: { read: 'Read', reading: 'Reading', want: 'Want to read', dropped: 'Dropped' },
+      series: { watching: 'Watching now', finished: 'Finished', want: 'Want to watch', dropped: 'Dropped' },
+      comic: { reading: 'Reading now', read: 'Read', want: 'Want to read', dropped: 'Dropped' },
+      book: { read: 'Read', reading: 'Reading now', want: 'Want to read', dropped: 'Dropped' },
     },
-    wears: 'wears',
+    wears: 'Wears',
     count: {
       perfume: { one: '1 perfume', two: '2 perfumes', few: '{n} perfumes', many: '{n} perfumes' },
       game: { one: '1 game', two: '2 games', few: '{n} games', many: '{n} games' },
@@ -323,11 +323,16 @@ export function itemKey(e) {
   return `${e.h !== undefined ? `${e.h}/` : ''}${e.i !== undefined ? `i:${e.i}` : `t:${e.t}|${e.s ?? ''}`}`;
 }
 
+/** The shelves whose items may carry a buy link: perfumes only (the app's `EntryField.buyLink`). */
+export const BUY_LINK_SHELVES = new Set(['p']);
+
 /**
  * The entries with a buy link, one per item (its first appearance: the top
  * fours, recent items, each shelf's (tagged with its shelf), then the
  * lists'), links that hit the filter left out first: the app's
- * censorSnapshot + snapshotBuyLinks.
+ * censorSnapshot + snapshotShelfBuyLinks. Only perfumes have buy links (an
+ * entry with no shelf is a perfume, as in an old perfume-only link); an
+ * older link may still carry a game's or a book's, and it is not shown.
  */
 export function buyLinkEntries(snap) {
   const all = [
@@ -340,6 +345,7 @@ export function buyLinkEntries(snap) {
   const out = [];
   for (const e of all) {
     if (typeof e?.u !== 'string' || !parseBuyLink(e.u) || !buyLinkIsClean(e.u)) continue;
+    if (!BUY_LINK_SHELVES.has(e.h ?? 'p')) continue;
     const key = itemKey(e);
     if (seen.has(key)) continue;
     seen.add(key);
@@ -369,7 +375,7 @@ function statOf(stats, key) {
 /** "40 لعبتها · 2 ألعبها": a shelf's counts in status order (ShelfHeading), and a perfume shelf's wears. */
 export function countsLine(L, kind, stats) {
   const parts = STATUSES[kind].filter((st) => statOf(stats, st) > 0).map((st) => `${stats[st]} ${L.status[kind][st]}`);
-  if (kind === 'perfume' && statOf(stats, 'wears') > 0) parts.push(`${stats.wears} ${L.wears}`);
+  if (kind === 'perfume' && statOf(stats, 'wears') > 0) parts.push(`${L.wears}: ${stats.wears}`);
   return parts.join(' · ');
 }
 
