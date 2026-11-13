@@ -12,6 +12,14 @@
 // [{k: key, t: top ≤4, r: recent ≤40, s: stats} ≤8], an entry may name its
 // shelf in "h" and carry "l": 1 when the owner liked it, and a list may
 // carry a tag in "g".
+// After 1.1.0, whose page ignores them: "x" holds up to three taste tag ids,
+// "m": 1 says the link was trimmed to highlights, and "n": 1 on a shelf says its
+// first pick (the favourite) stayed off the link. They are optional, so a
+// malformed one is dropped and the profile kept, as the old page keeps it: "x"
+// that is not a list of at most 16 is ignored, an entry that is not a tag id of
+// at most 40 code points is skipped, a repeat kept once, three at most; "m" and
+// "n" count only as the number 1. (Where the browser can't show a number as
+// written, a hand-made 1.0 reads as 1, which Dart drops; the app never writes it.)
 // Lengths are counted in Unicode code points, like Dart's `runes.length`,
 // except stat keys, which Dart counts in UTF-16 units (`String.length`).
 
@@ -20,6 +28,10 @@ import { BUY_LINK_MAX, parseBuyLink } from './buylink.js';
 const MAX_PAYLOAD = 6000;
 const MAX_INFLATED = 32 * 1024;
 const MAX_SHELVES = 8;
+const MAX_TAGS = 3;
+
+/** A taste tag's id, `<shelf>.<name>`: the circle server's pattern. */
+const TAG_ID = /^[a-z]+\.[a-z0-9-]{1,32}$/;
 
 /** A shelf's key (`p`, `g`, …), on a shelf or on an entry. */
 const SHELF_KEY = /^[a-z0-9_-]{1,12}$/;
@@ -230,7 +242,27 @@ function shelfFromJson(json) {
   if (top.length) out.t = top;
   if (recent.length) out.r = recent;
   if (stats) out.s = stats;
+  if (one(field(json, 'n'))) out.n = 1;
   return out;
+}
+
+/**
+ * "x", optional: ignored unless a list of at most 16. Of its entries, the tag
+ * ids (text of at most 40 code points matching the pattern), once each, the
+ * first MAX_TAGS; anything else is skipped.
+ */
+function tagsFromJson(raw) {
+  if (!Array.isArray(raw) || raw.length > 16) return [];
+  const tags = [];
+  for (const t of raw) {
+    if (typeof t === 'string' && runeLength(t) <= 40 && TAG_ID.test(t) && !tags.includes(t) && tags.length < MAX_TAGS) tags.push(t);
+  }
+  return tags;
+}
+
+/** An optional mark ("m", "n"): set only by the number 1; anything else is dropped. */
+function one(v) {
+  return isInt(v) && v === 1;
 }
 
 /** Stats: at most 16 keys of at most 24 UTF-16 units, ints 0-10,000,000; null when empty. */
@@ -272,6 +304,8 @@ function snapshotFromJson(json, app) {
   const top = entries(field(json, 't'), 4);
   const recent = entries(field(json, 'r'), 40);
   const lists = rawLists.map(listFromJson);
+  const tags = tagsFromJson(field(json, 'x'));
+  const highlights = one(field(json, 'm'));
 
   // The Dart toJson() shape.
   const out = { v: 1, a, p };
@@ -285,5 +319,7 @@ function snapshotFromJson(json, app) {
   if (stats) out.s = stats;
   if (lists.length) out.l = lists;
   if (shelves.length) out.h = shelves;
+  if (tags.length) out.x = tags;
+  if (highlights) out.m = 1;
   return out;
 }

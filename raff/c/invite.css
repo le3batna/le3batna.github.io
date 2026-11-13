@@ -21,18 +21,35 @@
   font-display: swap;
 }
 
+/* Light is the look by default (D-047); the page follows the phone's
+   appearance. The tokens are the profile page's (viewer.css). */
 :root {
-  --night: #170d12;
-  --surface: #22141a;
-  --cream: #f5ebdd;
-  --cream-2: #cdbdae;
-  --gold: #d3a65a;
-  --hair: rgba(245, 235, 221, 0.11);
+  --night: #f7f5f0;
+  --surface: #ffffff;
+  --cream: #17191e;
+  --cream-2: #4a4842;
+  --accent-text: #78364a;
+  --action: #78364a;
+  --on-action: #ffffff;
+  --hair: rgba(23, 25, 30, 0.12);
   --display: 'Reem Kufi', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   --gutter: 22px;
-  color-scheme: dark;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --night: #17191e;
+    --surface: #212429;
+    --cream: #f3f1ec;
+    --cream-2: #d3d0c9;
+    --accent-text: #e5a9b8;
+    --action: #a75c6b;
+    --on-action: #ffffff;
+    --hair: rgba(243, 241, 236, 0.12);
+  }
 }
 
 *,
@@ -65,7 +82,7 @@ ol {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--accent-text);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -82,7 +99,7 @@ ol {
 
 .wordmark {
   font: 700 30px/1.5 var(--display);
-  color: var(--gold);
+  color: var(--accent-text);
 }
 
 .invite {
@@ -120,7 +137,7 @@ ol {
 
 .code-label {
   font-size: 14px;
-  color: var(--gold);
+  color: var(--accent-text);
   font-weight: 700;
 }
 
@@ -133,8 +150,8 @@ ol {
 
 .copy {
   font: 700 16px/1 var(--body);
-  color: var(--night);
-  background: var(--gold);
+  color: var(--on-action);
+  background: var(--action);
   border: 0;
   border-radius: 999px;
   padding: 12px 22px;
@@ -148,7 +165,7 @@ ol {
 }
 
 .step::marker {
-  color: var(--gold);
+  color: var(--accent-text);
   font-weight: 700;
 }
 

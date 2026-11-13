@@ -1,7 +1,9 @@
 // رفّ profile viewer. It decodes the snapshot in the link's fragment
-// (web/shared/snapshot.js) and draws the profile shelf by shelf: perfumes,
-// games, movies, series, comics, books, then the month across them, the lists, the
-// layering combos and the buy links. The fragment never leaves the browser,
+// (web/shared/snapshot.js) and draws the overview first (who it is, their taste
+// tags when the link carries them, each shelf's favourite), then the profile shelf
+// by shelf: perfumes, games, movies, series, comics, books, music, then the month across
+// them, the lists, the layering combos and the buy links, and last «هذا ذوقي،
+// ورّني ذوقك» with «سوّ رفّك». A trimmed link says it holds highlights. The fragment never leaves the browser,
 // and the page makes no request of its own: titles ride in the link (the
 // app embeds a short title for catalog items), so no catalog is fetched.
 //
@@ -21,8 +23,9 @@
 import { decodePayload, payloadFromHash } from '../../shared/snapshot.js';
 import { censor } from '../../shared/filter.js';
 import { buyLinkIsClean, parseBuyLink } from '../../shared/buylink.js';
-import { KIND_OF_CODE, SHELF_STYLES, coverElement, glyphIcon } from './covers.js';
+import { KIND_OF_CODE, coverElement, glyphIcon, recordFormOf } from './covers.js';
 import { NO_RATING_BOOKS } from './no-rating.js';
+import { NO_RATING_MUSIC } from './no-rating-music.js';
 
 // TODO: replace with رفّ's real App Store link once its App Store record exists.
 export const APP_STORE_URL = 'https://apps.apple.com/app/id6828913497';
@@ -37,11 +40,11 @@ export const LABELS = {
     getApp: 'حمّل رفّ',
     pageTitle: 'رفّ {name}',
     noName: 'صاحب الرفّ',
-    shelfTitle: { perfume: 'عطوري', game: 'ألعابي', movie: 'أفلامي', series: 'مسلسلاتي', comic: 'مانجا وكوميكس', book: 'كتبي' },
+    shelfTitle: { perfume: 'عطوري', game: 'ألعابي', movie: 'أفلامي', series: 'مسلسلاتي', comic: 'مانجا وكوميكس', book: 'كتبي', music: 'موسيقاي' },
     // What an item shows when the link carries no title for it (the app
     // drops catalog titles last when a link is too long): count.<kind>.1,
     // and the shelf's name for comics.
-    shelfItem: { perfume: 'عطر', game: 'لعبة', movie: 'فيلم', series: 'مسلسل', comic: 'مانجا', book: 'كتاب' },
+    shelfItem: { perfume: 'عطر', game: 'لعبة', movie: 'فيلم', series: 'مسلسل', comic: 'مانجا', book: 'كتاب', music: 'اختيار موسيقي' },
     status: {
       perfume: { have: 'عندي', want: 'أبغاه', had: 'كان عندي' },
       game: { played: 'لعبتها', playing: 'ألعبها الحين', want: 'أبغى ألعبها', dropped: 'تركتها' },
@@ -49,7 +52,10 @@ export const LABELS = {
       series: { watching: 'أتابعه الحين', finished: 'خلّصته', want: 'أبغى أتابعه', dropped: 'تركته' },
       comic: { reading: 'أقراها الحين', read: 'قريتها', want: 'أبغى أقراها', dropped: 'تركتها' },
       book: { read: 'قريته', reading: 'أقراه الحين', want: 'أبغى أقراه', dropped: 'تركته' },
+      music: { listening: 'أسمعه الحين', listened: 'سمعته', want: 'أبغى أسمعه', dropped: 'تركته' },
     },
+    // A song's own words (the app's `status.*.track`): «سمعتها», not «سمعته».
+    statusTrack: { music: { listening: 'أسمعها الحين', listened: 'سمعتها', want: 'أبغى أسمعها', dropped: 'تركتها' } },
     wears: 'مرات اللبس',
     count: {
       perfume: { one: 'عطر', two: 'عطرين', few: '{n} عطور', many: '{n} عطر' },
@@ -58,6 +64,7 @@ export const LABELS = {
       series: { one: 'مسلسل', two: 'مسلسلين', few: '{n} مسلسلات', many: '{n} مسلسل' },
       comic: { one: 'عنوان مانجا', two: 'عنوانين مانجا', few: '{n} عناوين مانجا', many: '{n} عنوان مانجا' },
       book: { one: 'كتاب', two: 'كتابين', few: '{n} كتب', many: '{n} كتاب' },
+      music: { one: 'اختيار موسيقي', two: 'اختيارين موسيقيين', few: '{n} اختيارات موسيقية', many: '{n} اختيار موسيقي' },
     },
     monthLine: 'هالشهر: {list}',
     listJoin: '، ',
@@ -75,6 +82,10 @@ export const LABELS = {
     combos: 'خلطاتي',
     liked: 'أعجبني',
     likedOne: 'أعجبه',
+    // The overview and the close (Task 43); favourite.first.<kind> in ui_strings.dart.
+    favourite: { perfume: 'عطري المفضّل', game: 'لعبتي المفضّلة', movie: 'فيلمي المفضّل', series: 'مسلسلي المفضّل', comic: 'المانجا المفضّلة', book: 'كتابي المفضّل', music: 'موسيقاي المفضّلة' },
+    highlights: 'هذي أبرز الأشياء في هذا الرفّ',
+    closeTitle: 'هذا ذوقي، ورّني ذوقك',
     buyTitle: 'روابط الشراء',
     buyHere: 'اشتره من هنا',
     confirmTitle: 'تفتح موقع خارجي؟',
@@ -102,8 +113,8 @@ export const LABELS = {
     getApp: 'Get Raff',
     pageTitle: '{name} on Raff',
     noName: 'A Raff shelf',
-    shelfTitle: { perfume: 'Perfumes', game: 'Games', movie: 'Movies', series: 'Series', comic: 'Comics & manga', book: 'Books' },
-    shelfItem: { perfume: 'Perfume', game: 'Game', movie: 'Movie', series: 'Series', comic: 'Comic', book: 'Book' },
+    shelfTitle: { perfume: 'Perfumes', game: 'Games', movie: 'Movies', series: 'Series', comic: 'Comics & manga', book: 'Books', music: 'Music' },
+    shelfItem: { perfume: 'Perfume', game: 'Game', movie: 'Movie', series: 'Series', comic: 'Comic', book: 'Book', music: 'Music' },
     status: {
       perfume: { have: 'Have', want: 'Want', had: 'Used to have' },
       game: { played: 'Played', playing: 'Playing now', want: 'Want to play', dropped: 'Dropped' },
@@ -111,7 +122,9 @@ export const LABELS = {
       series: { watching: 'Watching now', finished: 'Finished', want: 'Want to watch', dropped: 'Dropped' },
       comic: { reading: 'Reading now', read: 'Read', want: 'Want to read', dropped: 'Dropped' },
       book: { read: 'Read', reading: 'Reading now', want: 'Want to read', dropped: 'Dropped' },
+      music: { listening: 'Listening now', listened: 'Listened', want: 'Want to listen', dropped: 'Dropped' },
     },
+    statusTrack: { music: { listening: 'Listening now', listened: 'Listened', want: 'Want to listen', dropped: 'Dropped' } },
     wears: 'Wears',
     count: {
       perfume: { one: '1 perfume', two: '2 perfumes', few: '{n} perfumes', many: '{n} perfumes' },
@@ -120,6 +133,7 @@ export const LABELS = {
       series: { one: '1 series', two: '2 series', few: '{n} series', many: '{n} series' },
       comic: { one: '1 comic', two: '2 comics', few: '{n} comics', many: '{n} comics' },
       book: { one: '1 book', two: '2 books', few: '{n} books', many: '{n} books' },
+      music: { one: '1 music item', two: '2 music items', few: '{n} music items', many: '{n} music items' },
     },
     monthLine: 'This month: {list}',
     listJoin: ', ',
@@ -137,6 +151,9 @@ export const LABELS = {
     combos: 'My combos',
     liked: 'Liked',
     likedOne: 'Liked',
+    favourite: { perfume: 'My favourite perfume', game: 'My favourite game', movie: 'My favourite movie', series: 'My favourite series', comic: 'My favourite comic', book: 'My favourite book', music: 'My favourite music' },
+    highlights: 'These are the highlights of this shelf',
+    closeTitle: 'This is my taste. Show me yours',
     buyTitle: 'Where to buy',
     buyHere: 'Buy it here',
     confirmTitle: 'Open an external website?',
@@ -168,7 +185,23 @@ export const STATUSES = {
   series: ['watching', 'finished', 'want', 'dropped'],
   comic: ['reading', 'read', 'want', 'dropped'],
   book: ['read', 'reading', 'want', 'dropped'],
+  music: ['listening', 'listened', 'want', 'dropped'],
 };
+
+/** What a Music item of one's own is, by its art number in a link (the app's snapshotMusicArt). */
+export const MUSIC_TYPES = ['artist', 'album', 'track'];
+
+/**
+ * What a Music entry is (the app's snapshotMusicType): its catalog id's letter, else the
+ * art number an item of the user's own carries; null when neither says.
+ */
+export function musicTypeOf(e) {
+  if (e?.i !== undefined) {
+    const form = recordFormOf(e.i);
+    return /^[agr][A-Za-z0-9_-]{22}$/.test(String(e.i)) ? form : null;
+  }
+  return Number.isInteger(e?.k) && e.k >= 1 && e.k <= MUSIC_TYPES.length ? MUSIC_TYPES[e.k - 1] : null;
+}
 
 /** The list tag of a perfume layering combo (kComboListTag). */
 export const COMBO_TAG = 'combo';
@@ -198,6 +231,51 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** About how wide (CSS px) covers are drawn where they appear. */
 const COVER_PX = { top: 90, tile: 66, small: 30 };
+
+/** How wide (CSS px) a favourite's cover is drawn in the overview. */
+const FAVOURITE_PX = 104;
+
+// The taste tags' words are a table of their own (./tags.js), asked for the first time a
+// profile with tags shows, and waited for TAGS_WAIT_MS at most. A page published without
+// it, a table that fails to load, or one slower than that, shows every profile, only
+// without its tags; a profile without tags never waits for it.
+const TAGS_WAIT_MS = 2500;
+const loadTagsTable = () => import('./tags.js');
+let tagsLoad = loadTagsTable;
+let tagsWait = TAGS_WAIT_MS;
+let tagsTable = null;
+
+/**
+ * For tests: where the table comes from and how long a profile waits for it, starting
+ * afresh. With no arguments, the page's own (./tags.js, TAGS_WAIT_MS).
+ */
+export function useTasteTagsLoader(load = loadTagsTable, waitMs = TAGS_WAIT_MS) {
+  tagsLoad = load;
+  tagsWait = waitMs;
+  tagsTable = null;
+}
+
+/**
+ * The taste tags table (id → {ar, en}), asked for once. One that fails to load, or has
+ * not come within the wait, is an empty table, kept for the page: a table that arrives
+ * later is ignored, so a profile shown without tags never changes under the reader.
+ */
+export function tasteTags() {
+  tagsTable ??= new Promise((resolve) => {
+    const giveUp = setTimeout(() => resolve(new Map()), tagsWait);
+    Promise.resolve()
+      .then(tagsLoad)
+      .then(
+        (m) => (m?.TASTE_TAGS instanceof Map ? m.TASTE_TAGS : new Map()),
+        () => new Map(),
+      )
+      .then((table) => {
+        clearTimeout(giveUp);
+        resolve(table);
+      });
+  });
+  return tagsTable;
+}
 
 // ------------------------------------------------------------ pure helpers
 
@@ -278,11 +356,11 @@ export function perfumeArtOf(k) {
 export function snapshotShelves(snap) {
   if (!snap?.h?.length) {
     if (!snap?.t && !snap?.r && !snap?.s) return [];
-    return [{ code: 'p', kind: 'perfume', t: snap.t ?? [], r: snap.r ?? [], s: snap.s ?? {} }];
+    return [{ code: 'p', kind: 'perfume', t: snap.t ?? [], r: snap.r ?? [], s: snap.s ?? {}, n: false }];
   }
   return snap.h
     .filter((s) => Object.hasOwn(KIND_OF_CODE, s.k))
-    .map((s) => ({ code: s.k, kind: KIND_OF_CODE[s.k], t: s.t ?? [], r: s.r ?? [], s: s.s ?? {} }));
+    .map((s) => ({ code: s.k, kind: KIND_OF_CODE[s.k], t: s.t ?? [], r: s.r ?? [], s: s.s ?? {}, n: s.n === 1 }));
 }
 
 /** The layering combos (an old link's lists were all combos). */
@@ -354,6 +432,20 @@ export function buyLinkEntries(snap) {
   return out;
 }
 
+/** The taste tags of a link ("x") in [table] (tasteTags()), in [lang]'s words; an id it lacks is skipped. */
+export function snapshotTags(snap, lang, table = new Map()) {
+  return (snap?.x ?? []).filter((id) => table.has(id)).map((id) => table.get(id)[lang === 'ar' ? 'ar' : 'en']);
+}
+
+/**
+ * Each shelf's favourite, the first of its four, as {kind, entry}. A shelf without
+ * a four has none, and so has one whose first pick stayed off the link ("n": 1):
+ * the next pick is never promoted (SnapshotShelf.favourite).
+ */
+export function snapshotFavourites(shelves) {
+  return shelves.filter((s) => s.t.length && !s.n).map((s) => ({ kind: s.kind, entry: s.t[0] }));
+}
+
 /** «3 أفلام», «فيلمين», «لعبة»; "3 movies" in English (countLabel). */
 export function countLabel(L, kind, n) {
   const forms = L.count[kind];
@@ -364,7 +456,7 @@ export function countLabel(L, kind, n) {
 
 /** «هالشهر: 3 أفلام، لعبة، عطرين» from each shelf's `month`; '' when none. */
 export function monthLine(L, shelves) {
-  const parts = shelves.filter((s) => statOf(s.s, 'month') > 0).map((s) => countLabel(L, s.kind, s.s.month));
+  const parts = shelves.filter((s) => statOf(s.s, 'month') > 0 && L.count[s.kind]).map((s) => countLabel(L, s.kind, s.s.month));
   return parts.length ? fill(L.monthLine, { list: parts.join(L.listJoin) }) : '';
 }
 
@@ -374,17 +466,19 @@ function statOf(stats, key) {
 
 /** "40 لعبتها · 2 ألعبها": a shelf's counts in status order (ShelfHeading), and a perfume shelf's wears. */
 export function countsLine(L, kind, stats) {
-  const parts = STATUSES[kind].filter((st) => statOf(stats, st) > 0).map((st) => `${stats[st]} ${L.status[kind][st]}`);
+  // A shelf this page has no words for (a newer app's) says nothing rather than breaking the page.
+  const parts = (L.status[kind] ? STATUSES[kind] : []).filter((st) => statOf(stats, st) > 0).map((st) => `${stats[st]} ${L.status[kind][st]}`);
   if (kind === 'perfume' && statOf(stats, 'wears') > 0) parts.push(`${L.wears}: ${stats.wears}`);
   return parts.join(' · ');
 }
 
-/** A recent item's tag in words: an occasion, a rewatch, a status; '' otherwise. */
-export function tagLabel(L, kind, tag) {
+/** A recent item's tag in words: an occasion, a rewatch, a status (a song's in its own words); '' otherwise. */
+export function tagLabel(L, kind, tag, musicType = null) {
   if (typeof tag !== 'string') return '';
   if (kind === 'perfume') return Object.hasOwn(L.occasions, tag) ? L.occasions[tag] : '';
   if (tag === 'rewatch') return L.rewatch;
-  return STATUSES[kind]?.includes(tag) ? L.status[kind][tag] : '';
+  if (!STATUSES[kind]?.includes(tag) || !L.status[kind]) return '';
+  return musicType === 'track' && L.statusTrack?.[kind] ? L.statusTrack[kind][tag] : L.status[kind][tag];
 }
 
 /**
@@ -403,7 +497,7 @@ export function entryView(L, e, kind) {
     return { kind: k, title, subtitle, shape: art.shape, color: familyColor(art.family) };
   }
   const title = e.t !== undefined ? censor(e.t) : L.shelfItem[k];
-  return { kind: k, title, subtitle, seed: e.i ?? title };
+  return { kind: k, title, subtitle, seed: e.i ?? title, musicType: k === 'music' ? musicTypeOf(e) : null };
 }
 
 /** The link's attributes on the page: never the referrer, never followed. */
@@ -446,8 +540,8 @@ function add(parent, tag, attrs) {
   return node;
 }
 
-function appButton(ctx, className = 'button') {
-  const a = el('a', className, ctx.L.getApp);
+function appButton(ctx, className = 'button', text = ctx.L.getApp) {
+  const a = el('a', className, text);
   a.href = APP_STORE_URL;
   a.rel = 'noopener noreferrer';
   return a;
@@ -562,10 +656,10 @@ function bottle(shape, color) {
   return svg;
 }
 
-/** An entry's art: its bottle, or its cover drawn about [px] wide (a book's with its author). */
+/** An entry's art: its bottle, or its cover drawn about [px] wide (a book's with its author, a record as what it is). */
 function art(view, px) {
   if (view.kind === 'perfume') return bottle(view.shape, view.color);
-  return coverElement(view.kind, view.title, view.seed, px, view.kind === 'book' ? view.subtitle ?? '' : '');
+  return coverElement(view.kind, view.title, view.seed, px, view.kind === 'book' || view.kind === 'music' ? view.subtitle ?? '' : '', view.musicType);
 }
 
 const HEART = 'M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.8 4.2 7.3C19.5 16.4 12 21 12 21z';
@@ -655,6 +749,35 @@ function avatar(snap) {
   return a;
 }
 
+/** The taste tags as a row of chips, or null when the link carries none the page knows. */
+function tagList(ctx, snap, table) {
+  const tags = snapshotTags(snap, ctx.lang, table);
+  if (!tags.length) return null;
+  const ul = el('ul', 'tags');
+  for (const t of tags) ul.append(el('li', 'tag', t));
+  return ul;
+}
+
+/** The overview's favourites: one large art per shelf, under «عطري المفضّل»…; null when none. */
+function favouritesSection(ctx, shelves) {
+  const favourites = snapshotFavourites(shelves);
+  if (!favourites.length) return null;
+  const sec = el('section', 'favourites');
+  const ul = el('ul', 'fav-strip');
+  for (const { kind, entry } of favourites) {
+    const v = entryView(ctx.L, entry, kind);
+    const li = el('li', `fav fav-${v.kind}`);
+    const box = el('div', 'fav-art');
+    box.append(hearted(ctx, art(v, FAVOURITE_PX), entry));
+    li.append(box);
+    if (ctx.L.favourite[kind]) li.append(el('p', 'fav-label', ctx.L.favourite[kind]));
+    li.append(userText('p', 'fav-name', v.title));
+    ul.append(li);
+  }
+  sec.append(ul);
+  return sec;
+}
+
 /** A shelf's heading: its glyph and title, and its counts. */
 function shelfHeading(ctx, shelf) {
   const head = el('div', 'shelf-head');
@@ -664,6 +787,43 @@ function shelfHeading(ctx, shelf) {
   const line = countsLine(ctx.L, shelf.kind, shelf.s);
   if (line) head.append(el('p', 'shelf-counts', line));
   return head;
+}
+
+// The title rule of the app (titleNamesAllah in apps/raff/lib/catalog/media_catalog.dart) and of the
+// catalog's marks (allah_title in tools/shelves/build_music.py), with the same patterns: an album or a
+// song whose title names Allah shows no stars. They are built when the page runs, as a browser without
+// lookbehind (Safari before 16.4) can't read them: there the rule is null and every Music title counts
+// as naming Allah, so no stars show rather than the page failing to load.
+const TITLE_RULE = (() => {
+  try {
+    return {
+      marks: new RegExp("[\\u0640\\u064B-\\u0652\\u0670]", 'gu'),
+      arabic: new RegExp("(?<![\\u0621-\\u064A])(?:(?<!عبد )[وف]?(?:ب|ت|يا?)?(?:الله|اللهم)|(?![وفبل]?(?:عبد|عبيد))[\\u0621-\\u064A]+(?:الله|اللهم)|[وف]?لله|الحمدلله|[اإأ]نشالله|ماشالله|[اأ]?(?:ال)?[اأ]سماء الحسني|[وف]?يا ?رب(?:ي|نا)?|[وفلب]?رب(?:ي|نا|ك)|لا [اإ]له [اإ]لا)(?![\\u0621-\\u064A])", 'u'),
+      latin: new RegExp("(?<!\\p{L})(?:allah(?:a|i|o|u|ou|om|um|uma|umma|oma)?|(?!allahabad)allah\\p{L}+|[ie]n ?[sc]h?a+['’]? ?a?lla+h?|ma ?sh?a+['’]? ?a?lla+h?|subhanallah|alhamdulillah|hamdulillah|bismillah|lillah|wallah[iy]?|asma+[' ’-]*(?:ul|al|u)?[' ’-]*h[ou]sna|asma+(?:['’]?[eu])?['’]? l+ah|la ilaha? ill?a(?: ?l+ah)?|(?!abd|obaid|ubaid|yalla)(?!\\p{L}*(?:fallah|mullah|challah))\\p{L}{2,}?(?:allah|ullah|illah|ellah)|ya ?rabb(?:i|ee|ek|ak|ik|una|ana|ena|ina|y)?|rabb(?:ee|ek|ak|ik|una|ana|ena|ina|y)?|ya ?rab|(?<!(?<!\\p{L})the )(?<!(?<!\\p{L})(?:an|le|de|du|un) )(?<!(?<!\\p{L})a )rabbi(?!['’]s)|alla (?:y[ae]?r[h7]am|akbar|kar[ie]+m|y[ae]?sall?[ae]?m|y[ae]?kh?all?[ie]|y[ae]?[h7]fa[dzt]|y[ae]?[h7]ann?[ie]|ma[a3]?[ae]?k|y[ae]?bar[ae]?k|y[ae]?sam[ae][h7]|y[ae]?st[ae]r)\\p{L}*|(?:el |al )?aa?l[ae]m alla|(?:ya|bismi?|subhan) alla)(?!\\p{L})", 'iu'),
+    };
+  } catch {
+    return null;
+  }
+})();
+
+/** Whether a Music title names Allah (see TITLE_RULE): runs of spaces count as one, «ﷲ» is «الله», «ى» is «ي». */
+export function titleNamesAllah(title) {
+  const rule = TITLE_RULE;
+  if (rule === null) return true;
+  const bare = String(title).replace(/\uFDF2/g, 'الله').replace(/ى/g, 'ي').replace(rule.marks, '').replace(/\s+/g, ' ');
+  return rule.arabic.test(bare) || rule.latin.test(bare);
+}
+
+/**
+ * Whether a Music top entry may show its stars here, failing closed (the owner's ruling: an
+ * album or a song naming Allah is never rated). The page has no catalog, so it can't show that a
+ * catalog id takes stars: NO_RATING_MUSIC names the ids known to take none, and an id it lacks
+ * may be one a newer catalog marks, or one it doesn't know at all. So only an item of the user's
+ * own, sent by its title, shows stars, and only when the title rule passes it.
+ */
+export function musicTakesStars(e) {
+  if (e?.i !== undefined || NO_RATING_MUSIC.has(e?.i)) return false;
+  return typeof e?.t === 'string' && !titleNamesAllah(e.t);
 }
 
 /** A shelf's top four: on the shelf, with captions (title, subtitle, stars). */
@@ -678,8 +838,11 @@ function topFour(ctx, shelf) {
     const cap = el('li', 'cap');
     cap.append(userText('p', 'cap-name', v.title));
     if (v.subtitle) cap.append(userText('p', 'cap-brand', v.subtitle));
-    // A hadith collection or a tafsir shows no stars, whatever the link says.
-    const st = shelf.kind === 'book' && NO_RATING_BOOKS.has(shelf.t[i].i) ? null : stars(ctx, shelf.t[i].r);
+    // A hadith collection or a tafsir shows no stars, whatever the link says (a catalog id on
+    // the list), and on Music only what can be shown to take them does (musicTakesStars).
+    const e = shelf.t[i];
+    const unrated = (shelf.kind === 'book' && NO_RATING_BOOKS.has(e.i)) || (shelf.kind === 'music' && !musicTakesStars(e));
+    const st = unrated ? null : stars(ctx, e.r);
     if (st) cap.append(st);
     caps.append(cap);
   });
@@ -695,7 +858,7 @@ function recentStrip(ctx, shelf) {
     const box = el('div', 'tile-art');
     box.append(hearted(ctx, art(v, COVER_PX.tile), e));
     li.append(box, userText('p', 'tile-name', v.title));
-    const meta = [e.d !== undefined ? formatDay(ctx.L, e.d, ctx.today) : '', tagLabel(ctx.L, shelf.kind, e.g)].filter(Boolean).join(' · ');
+    const meta = [e.d !== undefined ? formatDay(ctx.L, e.d, ctx.today) : '', tagLabel(ctx.L, shelf.kind, e.g, v.musicType)].filter(Boolean).join(' · ');
     if (meta) li.append(el('p', 'tile-meta', meta));
     ul.append(li);
   }
@@ -704,7 +867,6 @@ function recentStrip(ctx, shelf) {
 
 function shelfSection(ctx, shelf) {
   const sec = el('section', `section shelf shelf-${shelf.kind}`);
-  sec.style.setProperty('--accent', SHELF_STYLES[shelf.kind].accent);
   sec.append(shelfHeading(ctx, shelf));
   if (shelf.t.length) sec.append(...topFour(ctx, shelf));
   if (shelf.r.length) sec.append(recentStrip(ctx, shelf));
@@ -816,9 +978,10 @@ function buyLinks(ctx, entries) {
   return sec;
 }
 
+/** The close: «هذا ذوقي، ورّني ذوقك», a line, and «سوّ رفّك» to the App Store. */
 function callToAction(ctx, day) {
   const cta = el('section', 'cta');
-  cta.append(el('h2', 'cta-h', ctx.L.ctaTitle), el('p', 'cta-p', ctx.L.ctaText), appButton(ctx));
+  cta.append(el('h2', 'cta-h', ctx.L.closeTitle), el('p', 'cta-p', ctx.L.ctaText), appButton(ctx, 'button', ctx.L.ctaTitle));
   const p = parseDay(day);
   if (p) {
     const date = `${fill(ctx.L.dayMonth, { day: p.day, month: ctx.L.months[p.m - 1] })} ${p.y}`;
@@ -828,22 +991,29 @@ function callToAction(ctx, day) {
 }
 
 /**
- * The profile of a decoded snapshot: header, the month across shelves,
- * every shelf in its order (liked items carry a heart), «أعجبني», lists,
- * combos, buy links, the app's button. Covers are drawn here, never loaded
- * (the page asks no other site for anything, real covers included).
+ * The profile of a decoded snapshot: the overview (header, taste tags from
+ * [tags], each shelf's favourite), the month across shelves, «هذي أبرز الأشياء في هذا الرفّ»
+ * for a trimmed link, every shelf in its order (liked items carry a heart),
+ * «أعجبني», lists, combos, buy links, then the close with «سوّ رفّك». Covers
+ * are drawn here, never loaded (the page asks no other site for anything,
+ * real covers included).
  */
-export function profileView(snap, ctx = viewContext()) {
+export function profileView(snap, ctx = viewContext(), tags = new Map()) {
   const { L } = ctx;
   const nodes = [topBar(ctx, true)];
   const who = el('section', 'who');
   const name = censor(snap.n ?? '');
   who.append(avatar(snap), userText('h1', 'name', name || L.noName));
   if (snap.b) who.append(userText('p', 'bio', censor(snap.b)));
+  const tagRow = tagList(ctx, snap, tags);
+  if (tagRow) who.append(tagRow);
   nodes.push(who);
   const shelves = snapshotShelves(snap);
+  const favourites = favouritesSection(ctx, shelves);
+  if (favourites) nodes.push(favourites);
   const month = monthLine(L, shelves);
   if (month) nodes.push(el('p', 'month', month));
+  if (snap.m === 1) nodes.push(el('p', 'highlights', L.highlights));
   for (const shelf of shelves) nodes.push(shelfSection(ctx, shelf));
   const liked = snapshotLiked(snap);
   if (liked.length) nodes.push(likedSection(ctx, liked));
@@ -887,7 +1057,8 @@ export async function viewForPayload(payload, ctx = viewContext()) {
   } catch {
     return errorView(ctx);
   }
-  return profileView(snap, ctx);
+  // Only a profile that carries tags waits for their words, and briefly (tasteTags).
+  return profileView(snap, ctx, snap.x?.length ? await tasteTags() : new Map());
 }
 
 // ------------------------------------------------------------------ page

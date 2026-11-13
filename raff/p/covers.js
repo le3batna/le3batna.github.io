@@ -1,4 +1,4 @@
-// Covers drawn in code for the games, movies, series, comics and books
+// Covers drawn in code for the games, movies, series, comics, books and music
 // shelves: a port of apps/raff/lib/ui/covers.dart. Each item gets a cover
 // from its own title, on a colour and a motif picked by a stable hash of its
 // id (or a custom item's title), inside its shelf's palette, with the
@@ -8,14 +8,15 @@
 // the title (fonts in ../fonts/, sized in container units of the cover).
 //
 // Keep in step with covers.dart: hash, palettes, bit fields, motifs, glyphs,
-// the title's typeface rule and where the title sits (bookLayout for books).
+// the title's typeface rule and where the title sits (bookLayout for books,
+// recordLayout for music).
 //
 // Safety: titles reach the page through textContent only.
 
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 /** The shelves' codes in a link, and the kinds they stand for. */
-export const KIND_OF_CODE = { p: 'perfume', g: 'game', m: 'movie', s: 'series', c: 'comic', b: 'book' };
+export const KIND_OF_CODE = { p: 'perfume', g: 'game', m: 'movie', s: 'series', c: 'comic', b: 'book', u: 'music' };
 
 /**
  * FNV-1a (32 bits) of the UTF-16 code units of [seed]: the same number as
@@ -73,6 +74,13 @@ export const SHELF_STYLES = {
     tones: ['#3B1730', '#4A1620', '#173A2C', '#172440', '#4A2147', '#12383A', '#4A2E18', '#262231'],
     paper: '#F1E6CF',
     paperInk: '#2A1620',
+  },
+  // Printed card sleeves; now and then a cream one. The accent, on a record's label.
+  music: {
+    accent: '#B9A3F3',
+    tones: ['#2A1F44', '#1B2A4E', '#3F1A38', '#11343C', '#4A1C28', '#1C3A2C', '#3F2C13', '#26222E'],
+    paper: '#F2E9D8',
+    paperInk: '#251A2E',
   },
 };
 
@@ -158,13 +166,16 @@ export function titleStyle(look, title, size) {
   if (hasArabic(title) && look.kind === 'book') {
     // Books: naskh, now and then ruqʿa or kufi.
     [face, height] = t === 2 ? ['ruqaa', 1.4] : t === 3 ? ['kufi', 1.3] : ['amiri', 1.5];
+  } else if (hasArabic(title) && look.kind === 'music') {
+    // Music: ruqʿa or kufi.
+    [face, height] = t % 2 === 0 ? ['ruqaa', 1.4] : ['kufi', 1.3];
   } else if (hasArabic(title)) {
     const kufi = look.kind === 'game' ? t % 2 === 0 : t === 3;
     [face, height] = kufi ? ['kufi', 1.25] : ['lalezar', 1.3];
   } else if (look.kind === 'book') {
     // A serif, now and then a spaced sans in capitals.
     [face, spacing, height] = t === 3 ? ['oswald', 0.04, 1.08] : ['playfair', 0, 1.12];
-  } else if (look.kind === 'movie' || look.kind === 'series') {
+  } else if (look.kind === 'movie' || look.kind === 'series' || look.kind === 'music') {
     [face, spacing, height] = t % 2 === 0 ? ['oswald', 0.02, 1.05] : ['playfair', 0, 1.08];
   } else if (look.kind === 'comic') {
     [face, spacing, height] = ['oswald', 0.01, 1.0];
@@ -178,7 +189,7 @@ export function titleStyle(look, title, size) {
 export function titleText(look, title) {
   if (hasArabic(title)) return title;
   const serif =
-    look.kind === 'movie' || look.kind === 'series'
+    look.kind === 'movie' || look.kind === 'series' || look.kind === 'music'
       ? look.typeface % 2 === 1
       : look.kind === 'book'
         ? look.typeface !== 3
@@ -242,6 +253,7 @@ export function aspectOf(kind) {
   if (kind === 'game') return 0.8;
   if (kind === 'perfume') return 100 / 140;
   if (kind === 'book') return 0.66;
+  if (kind === 'music') return 1;
   return 0.68;
 }
 
@@ -523,6 +535,18 @@ export function drawGlyph(parent, kind, cx, cy, s, color, opacity = 1) {
       }
       break;
     }
+    case 'music': {
+      // A record: its edge, a groove across a quarter of it, and the label.
+      add(g, 'circle', { cx, cy, r: s * 0.46 });
+      const r = s * 0.27;
+      const a0 = -Math.PI * 0.42;
+      const a1 = a0 + Math.PI * 0.5;
+      add(g, 'path', {
+        d: `M${round(cx + r * Math.cos(a0))} ${round(cy + r * Math.sin(a0))}A${round(r)} ${round(r)} 0 0 1 ${round(cx + r * Math.cos(a1))} ${round(cy + r * Math.sin(a1))}`,
+      });
+      add(g, 'circle', { cx, cy, r: s * 0.1, ...fill });
+      break;
+    }
     case 'comic': {
       const by = cy - s * 0.06;
       const bottom = by + s * 0.35;
@@ -600,10 +624,13 @@ const cqw = (v) => `${round(v)}cqw`;
 /**
  * A cover for an item of [kind] (not perfumes: they stand as bottles):
  * [title] on it, drawn from [seed] (its catalog id, or a custom item's
- * title), about [px] CSS pixels wide; a book also shows its [author].
+ * title), about [px] CSS pixels wide; a book also shows its [author], and an
+ * album or a track its artist. A Music item of the user's own is drawn as the
+ * [musicType] its link says.
  */
-export function coverElement(kind, title, seed, px = 90, author = '') {
+export function coverElement(kind, title, seed, px = 90, author = '', musicType = null) {
   if (kind === 'book') return bookElement(title, seed, px, author);
+  if (kind === 'music') return recordElement(title, seed, px, author, musicType);
   const look = coverLook(kind, seed);
   const box = document.createElement('div');
   box.className = `cover cover-${kind}`;
@@ -934,4 +961,202 @@ function place(node, b) {
   st.top = cqw(b.y);
   st.width = cqw(b.w);
   st.height = cqw(b.h);
+}
+
+// ------------------------------------------------------------------ music
+
+/**
+ * What a sleeve is drawn as (recordFormOf): what the item is, when that is known (a custom
+ * item's link says it), else the letter of a Music id; a custom item's title says nothing,
+ * so with nothing else it is an album.
+ */
+export function recordFormOf(seed, musicType = null) {
+  if (musicType === 'artist' || musicType === 'album' || musicType === 'track') return musicType;
+  const s = String(seed);
+  if (!/^[agr][A-Za-z0-9_-]{22}$/.test(s)) return 'album';
+  return s[0] === 'a' ? 'artist' : s[0] === 'r' ? 'track' : 'album';
+}
+
+/**
+ * Where the record and the words go on a sleeve 100 units wide (recordLayout): boxes
+ * {x, y, w, h}, the alignment, the record's centre and radius. An artist has no record.
+ */
+export function recordLayout(look, form, rtl, w = 100, h = 100) {
+  const pad = w * 0.08;
+  const band = (top, bottom) => ({ x: pad, y: h * top, w: w - 2 * pad, h: h * (bottom - top) });
+  if (form === 'artist') return { title: band(0.14, 0.84), author: null, align: 'center', discCx: 0, discCy: 0, discRadius: 0 };
+  if (form === 'track') return { title: band(0.72, 0.89), author: band(0.895, 0.955), align: 'center', discCx: w / 2, discCy: h * 0.385, discRadius: w * 0.31 };
+  // An album's record slides out of the sleeve at a place of its own.
+  return {
+    title: band(0.68, 0.87),
+    author: band(0.875, 0.945),
+    align: rtl ? 'right' : 'left',
+    discCx: w * (0.36 + 0.28 * (bits(look.hash, 16, 4) / 15)),
+    discCy: h * 0.355,
+    discRadius: w * 0.29,
+  };
+}
+
+/** A record's vinyl, whatever the sleeve it comes in (kRecordVinyl). */
+const RECORD_VINYL = '#15131A';
+
+/** The sleeve's own printing (_SleevePainter._design): shade all over, colour only above the words. */
+function sleeveDesign(svg, look, lay, w, h) {
+  const { shade, accent, background } = look;
+  const hx = bits(look.hash, 16, 4) / 15;
+  const cx = lay.discRadius > 0 ? lay.discCx : w / 2;
+  const cy = lay.discRadius > 0 ? lay.discCy : h / 2;
+  switch (look.motif) {
+    case 0: {
+      // Rays from the record.
+      const n = 12;
+      for (let i = 0; i < n; i++) {
+        const a = (i * 2 * Math.PI) / n;
+        const b = a + Math.PI / n;
+        add(svg, 'path', {
+          d: `M${round(cx)} ${round(cy)}L${round(cx + Math.cos(a) * w * 1.5)} ${round(cy + Math.sin(a) * w * 1.5)}L${round(cx + Math.cos(b) * w * 1.5)} ${round(cy + Math.sin(b) * w * 1.5)}Z`,
+          fill: shade,
+        });
+      }
+      break;
+    }
+    case 1:
+      // Rings around it.
+      for (let i = 0; i < 6; i++) add(svg, 'circle', { cx, cy, r: w * (0.34 + 0.11 * i), fill: 'none', stroke: shade, 'stroke-width': Math.max(0.6, w * 0.018) });
+      break;
+    case 2:
+      // Bands of colour across the top.
+      for (let i = 0; i < 5; i++) rect(svg, 0, h * (i * 0.12), w, h * 0.12, lerpColor(background, i === 2 ? accent : shade, 0.3 + 0.12 * i));
+      break;
+    case 3: {
+      // A diagonal, with its line.
+      const left = h * 0.62;
+      const right = h * 0.3;
+      add(svg, 'path', { d: `M0 0L${round(w)} 0L${round(w)} ${round(right)}L0 ${round(left)}Z`, fill: shade });
+      add(svg, 'line', { x1: 0, y1: left, x2: w, y2: right, stroke: accent, 'stroke-width': Math.max(0.8, w * 0.016) });
+      break;
+    }
+    case 4: {
+      // A field of dots.
+      const step = w / 8;
+      for (let y = step / 2; y < h; y += step) {
+        for (let x = step / 2; x < w; x += step) circle(svg, x, y, w * 0.022, shade);
+      }
+      break;
+    }
+    case 5: {
+      // A chequer along the top, one square lit.
+      const n = 10;
+      const s = w / n;
+      const lit = Math.round(hx * (n - 1));
+      for (let row = 0; row < 2; row++) {
+        for (let i = 0; i < n; i++) {
+          if ((i + row) % 2 === 1) continue;
+          rect(svg, i * s, row * s, s, s, row === 0 && i === lit - (lit % 2) ? accent : shade);
+        }
+      }
+      break;
+    }
+    case 6:
+      // Arcs from the top corners.
+      for (const [x, i] of [[0, 0], [0, 1], [w, 0], [w, 1]]) {
+        add(svg, 'circle', { cx: x, cy: 0, r: w * (0.3 + 0.14 * i), fill: 'none', stroke: i === 0 && x === 0 ? accent : shade, 'stroke-width': Math.max(0.8, w * 0.024) });
+      }
+      break;
+    default: {
+      // A hairline frame and a band across the head.
+      const inset = w * 0.045;
+      add(svg, 'rect', {
+        x: inset,
+        y: inset,
+        width: w - 2 * inset,
+        height: h - 2 * inset,
+        fill: 'none',
+        stroke: accent,
+        'stroke-opacity': 0.45,
+        'stroke-width': Math.max(0.5, w * 0.006),
+      });
+      rect(svg, inset, inset, w - 2 * inset, h * 0.05, shade);
+    }
+  }
+}
+
+/** A sleeve's art (_SleevePainter): its background and design, then its record or its rules. */
+export function recordSvg(look, form, lay) {
+  const w = 100;
+  const h = 100;
+  const svg = svgNode('svg', { viewBox: `0 0 ${w} ${h}`, class: 'cover-art', 'aria-hidden': 'true', focusable: 'false', preserveAspectRatio: 'none' });
+  rect(svg, 0, 0, w, h, look.background);
+  sleeveDesign(svg, look, lay, w, h);
+  if (lay.discRadius > 0) {
+    const track = form === 'track';
+    const r = lay.discRadius;
+    circle(svg, lay.discCx, lay.discCy, r, RECORD_VINYL);
+    for (const share of [0.84, 0.7, 0.56]) {
+      add(svg, 'circle', { cx: lay.discCx, cy: lay.discCy, r: r * share, fill: 'none', stroke: '#FFFFFF', 'stroke-opacity': 0.14, 'stroke-width': Math.max(0.4, w * 0.004) });
+    }
+    circle(svg, lay.discCx, lay.discCy, r * (track ? 0.44 : 0.36), look.accent);
+    circle(svg, lay.discCx, lay.discCy, r * (track ? 0.16 : 0.05), look.background);
+  } else {
+    // The poster's two heavy rules.
+    rect(svg, w * 0.08, h * 0.07, w * 0.84, Math.max(1, h * 0.02), look.accent);
+    rect(svg, w * 0.08, h * 0.91, w * 0.84, Math.max(1, h * 0.02), look.accent);
+  }
+  return svg;
+}
+
+function recordElement(title, seed, px, author, musicType = null) {
+  const look = coverLook('music', seed);
+  const form = recordFormOf(seed, musicType);
+  const words = title === undefined || title === null ? '' : String(title);
+  const rtl = hasArabic(words);
+  const lay = recordLayout(look, form, rtl);
+  const shown = titleText(look, words);
+  const minSize = Math.max((4 / Math.max(px, 1)) * 100, 7);
+  const fitted = fitTitle(shown, look, lay.title.w, lay.title.h, form === 'artist' ? 26 : 16, minSize);
+  const box = document.createElement('div');
+  box.className = `cover cover-music${look.paper ? ' paper' : ''}`;
+  box.setAttribute('aria-hidden', 'true');
+  box.append(recordSvg(look, form, lay));
+  const across = lay.align === 'center' ? 'center' : lay.align === 'right' ? 'flex-end' : 'flex-start';
+  if (shown.trim()) {
+    const frame = document.createElement('div');
+    frame.className = 'book-box';
+    place(frame, lay.title);
+    frame.style.justifyContent = form === 'artist' ? 'center' : 'flex-start';
+    frame.style.alignItems = across;
+    const text = document.createElement('div');
+    text.className = `book-title f-${fitted.style.face}`;
+    text.textContent = shown;
+    text.dir = rtl ? 'rtl' : 'ltr';
+    const st = text.style;
+    st.setProperty('--fs', String(round(fitted.style.size)));
+    st.setProperty('--lines', String(fitted.lines));
+    st.textAlign = lay.align;
+    st.letterSpacing = `${fitted.style.spacing}em`;
+    st.lineHeight = String(fitted.style.height);
+    st.color = look.ink;
+    frame.append(text);
+    box.append(frame);
+  }
+  if (lay.author && String(author).trim() && px >= 34) {
+    const words = String(author);
+    const frame = document.createElement('div');
+    frame.className = 'book-box';
+    place(frame, lay.author);
+    frame.style.justifyContent = 'center';
+    frame.style.alignItems = across;
+    const text = document.createElement('div');
+    text.className = 'book-author f-plex';
+    text.textContent = hasArabic(words) ? words : words.toUpperCase();
+    text.dir = hasArabic(words) ? 'rtl' : 'ltr';
+    // Set smaller to fit its box, as the app's does.
+    const fits = textWidth(text.textContent, { face: 'plex', spacing: 0, size: 5.6 });
+    text.style.setProperty('--fs', String(round(Math.min(5.6, (5.6 * lay.author.w) / Math.max(fits, 1)))));
+    text.style.color = look.ink;
+    text.style.opacity = '0.8';
+    frame.append(text);
+    box.append(frame);
+  }
+  return box;
 }

@@ -66,22 +66,78 @@
   font-display: swap;
 }
 
+/* Light is the look by default (D-047); the page follows the phone's
+   appearance and switches to the night tokens in dark mode. Every pair is
+   checked for contrast by web/test/page.test.mjs. */
 :root {
-  --night: #170d12;
-  --surface: #22141a;
-  --surface-2: #2e1c24;
-  --niche: #2a1a20;
-  --cream: #f5ebdd;
-  --cream-2: #cdbdae;
-  --cream-3: #b7a08f;
-  --gold: #d3a65a;
-  --gold-soft: rgba(211, 166, 90, 0.45);
-  --hair: rgba(245, 235, 221, 0.11);
+  --night: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #efebe3;
+  --niche: #efe9dd;
+  --cream: #17191e;
+  --cream-2: #4a4842;
+  --cream-3: #5e5b54;
+  --accent-text: #78364a;
+  --action: #78364a;
+  --on-action: #ffffff;
+  --action-hover: #632b3c;
+  --star: #a67d34;
+  --star-empty: #8c877c;
+  --gold-soft: rgba(120, 54, 74, 0.45);
+  --ring: rgba(120, 54, 74, 0.35);
+  --hair: rgba(23, 25, 30, 0.12);
+  --sill-top: #e5d5b9;
+  --sill-bottom: #bea47e;
+  --cover-rim: rgba(23, 25, 30, 0.16);
+  --cover-shadow: 0 2px 6px rgba(41, 28, 16, 0.28);
+  --niche-shade: rgba(41, 28, 16, 0.18);
+  --badge: #ffffff;
+  --scrim: rgba(23, 25, 30, 0.38);
+  --tint-perfume: #8a5b1d;
+  --tint-game: #1c7361;
+  --tint-movie: #ae412b;
+  --tint-series: #3457ad;
+  --tint-comic: #856100;
+  --tint-book: #a0436a;
   --display: 'Reem Kufi', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --emoji: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
   --gutter: 22px;
-  color-scheme: dark;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --night: #17191e;
+    --surface: #212429;
+    --surface-2: #2c2f36;
+    --niche: #2b2e35;
+    --cream: #f3f1ec;
+    --cream-2: #d3d0c9;
+    --cream-3: #adaba5;
+    --accent-text: #e5a9b8;
+    --action: #a75c6b;
+    --on-action: #ffffff;
+    --action-hover: #93505f;
+    --star: #c59a50;
+    --star-empty: #7f828a;
+    --gold-soft: rgba(229, 169, 184, 0.5);
+    --ring: rgba(229, 169, 184, 0.35);
+    --hair: rgba(243, 241, 236, 0.12);
+    --sill-top: #4c3b2b;
+    --sill-bottom: #2b2119;
+    --cover-rim: rgba(255, 255, 255, 0.2);
+    --cover-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    --niche-shade: rgba(0, 0, 0, 0.7);
+    --badge: #212429;
+    --scrim: rgba(0, 0, 0, 0.7);
+    --tint-perfume: #ddb06a;
+    --tint-game: #63cdae;
+    --tint-movie: #f08a72;
+    --tint-series: #92b1f8;
+    --tint-comic: #f2c14e;
+    --tint-book: #eba5ba;
+  }
 }
 
 *,
@@ -108,8 +164,8 @@ body {
 }
 
 ::selection {
-  background: var(--gold);
-  color: var(--night);
+  background: var(--action);
+  color: var(--on-action);
 }
 
 a {
@@ -117,7 +173,7 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid var(--accent-text);
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -163,14 +219,14 @@ html[dir='ltr'] .u {
 
 .wordmark {
   font: 700 30px/1 var(--display);
-  color: var(--gold);
+  color: var(--accent-text);
   text-decoration: none;
   letter-spacing: 0;
 }
 
 .bar-get {
   font: 500 14px/1 var(--body);
-  color: var(--gold);
+  color: var(--accent-text);
   text-decoration: none;
   padding: 9px 14px 10px;
   border: 1px solid var(--gold-soft);
@@ -178,7 +234,7 @@ html[dir='ltr'] .u {
 }
 
 .bar-get:hover {
-  border-color: var(--gold);
+  border-color: var(--accent-text);
 }
 
 /* ------------------------------------------------------------- profile */
@@ -197,7 +253,7 @@ html[dir='ltr'] .u {
   background: #5b3a29;
   box-shadow:
     0 0 0 3px var(--night),
-    0 0 0 4px rgba(211, 166, 90, 0.55);
+    0 0 0 4px var(--gold-soft);
   margin-inline-start: 4px;
 }
 
@@ -211,7 +267,8 @@ html[dir='ltr'] .u {
 
 .avatar .initial {
   font: 700 38px/1 var(--display);
-  color: var(--cream);
+  /* On the avatar's own brown, whatever the page's look. */
+  color: #f7f5f0;
 }
 
 .name {
@@ -248,7 +305,7 @@ html[dir='ltr'] .u {
   margin-top: 28px;
   padding: 13px 16px 14px;
   background: var(--surface);
-  border: 1px solid rgba(211, 166, 90, 0.35);
+  border: 1px solid var(--ring);
   border-radius: 14px;
   font: 500 17px/1.5 var(--display);
   color: var(--cream);
@@ -298,14 +355,14 @@ html[dir='ltr'] .u {
   border-top-left-radius: 50% 98px;
   border-top-right-radius: 50% 98px;
   padding: 70px 14px 0;
-  box-shadow: inset 0 26px 34px -22px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 26px 34px -22px var(--niche-shade);
 }
 
 .niche::before {
   content: '';
   position: absolute;
   inset: 7px 7px 0;
-  border: 1px solid rgba(211, 166, 90, 0.22);
+  border: 1px solid var(--hair);
   border-bottom: 0;
   border-top-left-radius: 50% 91px;
   border-top-right-radius: 50% 91px;
@@ -353,9 +410,9 @@ html[dir='ltr'] .u {
   height: 13px;
   margin: 0 -9px;
   border-radius: 2px;
-  background: linear-gradient(#4b2f37, #2b1a20);
-  border-top: 1px solid var(--accent, var(--gold));
-  box-shadow: 0 16px 20px -12px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(var(--sill-top), var(--sill-bottom));
+  border-top: 1px solid var(--tint, var(--accent-text));
+  box-shadow: 0 16px 20px -12px var(--niche-shade);
 }
 
 .captions {
@@ -449,7 +506,7 @@ html .cap .u {
   container-type: inline-size;
   overflow: hidden;
   border-radius: max(2px, 3.5%) / max(2px, 2.38%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--cover-shadow), 0 0 0 1px var(--cover-rim);
 }
 
 .cover-game {
@@ -554,6 +611,13 @@ html .cap .u {
   text-overflow: clip;
 }
 
+/* A record sleeve: square, nearly sharp at the corners. Its words sit in the book's
+   boxes, laid out like the app's (recordLayout). */
+.cover-music {
+  aspect-ratio: 1;
+  border-radius: max(1.5px, 1.5%);
+}
+
 /* ------------------------------------------------- recent items strip */
 
 /* Newest first, scrolling sideways, bleeding to the screen's edges. */
@@ -597,6 +661,10 @@ html .cap .u {
 
 .tile-art .cover-book {
   width: 64px;
+}
+
+.tile-art .cover-music {
+  width: 78px;
 }
 
 .tile-art .bottle {
@@ -677,6 +745,10 @@ html .tile .u {
   width: 31px;
 }
 
+.list-arts .cover-music {
+  width: 40px;
+}
+
 .list-parts {
   min-width: 0;
   font-size: 14px;
@@ -690,7 +762,7 @@ html .tile .u {
 }
 
 .list-plus {
-  color: var(--gold);
+  color: var(--accent-text);
   padding: 0 6px;
 }
 
@@ -743,7 +815,7 @@ html .tile .u {
   align-items: center;
   max-width: 46%;
   padding: 7px 14px 8px;
-  border: 1px solid var(--gold);
+  border: 1px solid var(--accent-text);
   border-radius: 10px;
   color: var(--cream);
   text-decoration: none;
@@ -751,7 +823,7 @@ html .tile .u {
 }
 
 .buy:hover {
-  background: rgba(211, 166, 90, 0.12);
+  background: var(--surface-2);
 }
 
 .buy-l {
@@ -761,7 +833,7 @@ html .tile .u {
 
 .buy-d {
   font-size: 12px;
-  color: var(--gold);
+  color: var(--accent-text);
   max-width: 100%;
   /* The whole domain, never cut: it is what keeps the link honest. */
   overflow-wrap: anywhere;
@@ -775,7 +847,7 @@ html .tile .u {
   max-height: calc(100dvh - 32px);
   margin: auto;
   padding: 24px 22px 12px;
-  border: 1px solid rgba(211, 166, 90, 0.35);
+  border: 1px solid var(--ring);
   border-radius: 18px;
   background: var(--surface);
   color: var(--cream);
@@ -784,7 +856,7 @@ html .tile .u {
 }
 
 .confirm::backdrop {
-  background: rgba(10, 5, 8, 0.72);
+  background: var(--scrim, rgba(23, 25, 30, 0.5));
 }
 
 .confirm-h {
@@ -795,7 +867,7 @@ html .tile .u {
   margin-top: 14px;
   padding: 14px 16px;
   background: var(--surface-2);
-  border: 1px solid rgba(211, 166, 90, 0.5);
+  border: 1px solid var(--accent-text);
   border-radius: 14px;
 }
 
@@ -830,10 +902,104 @@ html .tile .u {
   margin-top: 6px;
   padding: 12px 18px;
   font: 500 15px/1 var(--body);
-  color: var(--gold);
+  color: var(--accent-text);
   background: none;
   border: 0;
   cursor: pointer;
+}
+
+/* --------------------------------- the overview: tags, favourites (Task 43) */
+
+/* The taste tags, under the bio: words the owner picked, never a label. */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.tag {
+  padding: 6px 12px 7px;
+  border: 1px solid var(--ring);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--cream);
+  font: 500 14px/1.4 var(--body);
+}
+
+/* Each shelf's favourite, large, in a strip that scrolls sideways. */
+.favourites {
+  margin-top: 34px;
+}
+
+.fav-strip {
+  display: flex;
+  gap: 16px;
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 6px var(--gutter) 10px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+  list-style: none;
+}
+
+.fav-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.fav {
+  flex: none;
+  width: 118px;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.fav-art {
+  height: 150px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.fav-art .cover {
+  width: 104px;
+}
+
+.fav-art .bottle {
+  width: 84px;
+  height: 140px;
+}
+
+.fav-label {
+  margin-top: 9px;
+  font: 700 12.5px/1.4 var(--body);
+  color: var(--accent-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fav-name {
+  font: 500 14px/1.45 var(--body);
+  color: var(--cream);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+/* A trimmed link: what follows is the highlights. */
+.highlights {
+  margin-top: 24px;
+  color: var(--cream-2);
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 /* -------------------------------------------------- call to action */
@@ -862,15 +1028,15 @@ html .tile .u {
   margin-top: 22px;
   padding: 0 30px 2px;
   border-radius: 11px;
-  background: var(--gold);
-  color: var(--night);
+  background: var(--action);
+  color: var(--on-action);
   font: 700 17px/1 var(--body);
   text-decoration: none;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset;
 }
 
 .button:hover {
-  background: #ddb571;
+  background: var(--action-hover);
 }
 
 .button:active {
@@ -930,9 +1096,9 @@ html .tile .u {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #22141a;
-  border: 0.8px solid rgba(232, 84, 106, 0.4);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  background: var(--badge);
+  border: 0.8px solid rgba(232, 84, 106, 0.55);
+  box-shadow: 0 1px 4px var(--niche-shade);
   display: grid;
   place-items: center;
 }
@@ -940,4 +1106,36 @@ html .tile .u {
 .heart svg {
   width: 13px;
   height: 13px;
+}
+
+/* ------------------------------------- light and dark: drawn parts */
+
+/* The stars and shelf glyphs are drawn with the night's colours; here they
+   take the current look's: deeper gold on ivory, the brand gold on charcoal
+   (D-047), and each shelf's tint as the app's light and dark tints. */
+.stars path:not([fill='none']) {
+  fill: var(--star);
+}
+.stars path[fill='none'] {
+  stroke: var(--star-empty);
+  stroke-opacity: 1;
+}
+.shelf-perfume { --tint: var(--tint-perfume); }
+.shelf-game { --tint: var(--tint-game); }
+.shelf-movie { --tint: var(--tint-movie); }
+.shelf-series { --tint: var(--tint-series); }
+.shelf-comic { --tint: var(--tint-comic); }
+.shelf-book { --tint: var(--tint-book); }
+.shelf-h .glyph [stroke]:not([stroke='none']) {
+  stroke: var(--tint, var(--accent-text));
+}
+.shelf-h .glyph [fill]:not([fill='none']) {
+  fill: var(--tint, var(--accent-text));
+}
+
+/* A pale bottle keeps its edge on ivory. */
+@media (prefers-color-scheme: light) {
+  .bottle {
+    filter: drop-shadow(0 0 0.6px rgba(23, 25, 30, 0.7));
+  }
 }
